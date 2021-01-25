@@ -1,3 +1,9 @@
+# This script takes a project (01|02|03|...|13) and runs all tests associated with that project
+# Usage: runTests.sh <project name>. e.g: runTests.sh 01
+# Shows all correct and incorrect hdl files 
+# Prints all errors to errors.log
+
+
 # Declare all color variables that will be used
 RED='\033[0;31m'
 NC='\033[0m'
@@ -5,12 +11,15 @@ GREEN='\033[0;32m'
 
 PROJECT=$1                                                  # Stores the project given to the user
 WD=$(pwd)                                                   # Stores the current working directory to return to when the script finishes
-COUNT=$(ls *.tst | wc -l)                                   # Stores the count of all .tst files in the given directory
 SUCCESS="End of script - Comparison ended successfully"     # Stores the success line when a test is successul
 CORRECT=0                                                   # Initializes the number of passing tests to zero
 
 # Changes directory to wherever the project is located (CHANGE THIS TO WHEREVER YOU HAVE YOUR PROJECT STORED)
-cd /media/HDD1/GitHub-Repositories/CSCI410/projects/$PROJECT
+cd /u/au/sw/michaelhumphrey/GitHubRepositories/CSCI410/projects/$PROJECT
+
+COUNT=$(ls *.tst | wc -l)                                   # Stores the count of all .tst files in the given directory
+
+rm -f errors.log
 
 # Prints intro
 echo
@@ -21,7 +30,7 @@ echo
 for i in $(ls *tst); 
 do
     # Save the output to OUTPUT, redirecting all stderr to a log file
-	OUTPUT=$(HardwareSimulator.sh $i 2> errors.log);
+	OUTPUT=$(HardwareSimulator.sh $i 2>> errors.log);
 
     # If output matches, print filename in green and increment CORRECT variable
     if [[ $OUTPUT = $SUCCESS ]]
