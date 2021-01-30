@@ -15,7 +15,8 @@ SUCCESS="End of script - Comparison ended successfully"     # Stores the success
 CORRECT=0                                                   # Initializes the number of passing tests to zero
 
 # Changes directory to wherever the project is located (CHANGE THIS TO WHEREVER YOU HAVE YOUR PROJECT STORED)
-cd /u/au/sw/michaelhumphrey/GitHubRepositories/CSCI410/projects/$PROJECT
+#cd /u/au/sw/michaelhumphrey/GitHubRepositories/CSCI410/projects/$PROJECT
+cd ~/GithubRepositories/CSCI410/projects/$PROJECT
 
 COUNT=$(ls *.tst | wc -l)                                   # Stores the count of all .tst files in the given directory
 
@@ -46,6 +47,17 @@ done
 # Print the correct/total tests to console
 echo -e "${NC}"
 echo "$CORRECT/$COUNT"
+
+# If all correct and README exists, create a zip file containing README and all .hdl files
+pwd
+if [ $CORRECT = $COUNT -a -f README ]
+    then
+        echo "Creating a zip file containing README and all .hdl files"
+        mkdir src
+        cp *.hdl src
+        zip -r michaelhumphrey.zip src README >> /dev/null
+        rm -r src
+fi
 
 # Change directory to wherever user was previously
 cd $WD
