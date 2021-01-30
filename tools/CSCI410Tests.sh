@@ -49,25 +49,35 @@ echo -e "${NC}"
 echo "$CORRECT/$COUNT"
 
 # If all correct and README exists, create a zip file containing README and all .hdl files
-if [ $CORRECT = $COUNT ]
+if [[ $CORRECT = $COUNT ]]
 then
+    RE="YES"
+    
+    # If README does not exist, ask if user wants to create it
     if [ ! -f README ]
     then 
+        # Ask if user wants to create README file and parse input
         echo "No README was found. Would you like to create one now?"
         read RESPONSE
-        if [ $RESPONSE = "Y" ] || [ $RESPONSE = "y" ] || [ $RESPONSE = "yes" ] || [ $RESPONSE = "YES" ]
+        if [[ $RESPONSE = "Y" ]] || [[ $RESPONSE = "y" ]] || [[ $RESPONSE = "yes" ]] || [[ $RESPONSE = "YES" ]]
         then
-            RE="YES"
+            # Edit the README file
             vim README
+        else
+            # README does not exist, do not create zip file
+            RE="NO"
         fi
     fi
+
+    # Remove any previous zip files
     if [ -f michaelhumphrey.zip ]
     then
         rm -f michaelhumphrey.zip
     fi
     if [[ $RE = "YES" ]] && [[ -f README ]]
+    # Make temporary src directory with all hdl files then zip all hdl files as well as the README
     then
-        echo "Creating a zip file containing README and all .hdl files"
+        echo "Creating zip file 'michaelhumphrey.zip' containing README and all .hdl files"
         rm -rf src
         mkdir src
         cp *.hdl src
