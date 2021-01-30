@@ -15,8 +15,8 @@ SUCCESS="End of script - Comparison ended successfully"     # Stores the success
 CORRECT=0                                                   # Initializes the number of passing tests to zero
 
 # Changes directory to wherever the project is located (CHANGE THIS TO WHEREVER YOU HAVE YOUR PROJECT STORED)
-#cd /u/au/sw/michaelhumphrey/GitHubRepositories/CSCI410/projects/$PROJECT
-cd ~/GithubRepositories/CSCI410/projects/$PROJECT
+cd /u/au/sw/michaelhumphrey/GitHubRepositories/CSCI410/projects/$PROJECT
+#cd ~/GithubRepositories/CSCI410/projects/$PROJECT
 
 COUNT=$(ls *.tst | wc -l)                                   # Stores the count of all .tst files in the given directory
 
@@ -49,14 +49,31 @@ echo -e "${NC}"
 echo "$CORRECT/$COUNT"
 
 # If all correct and README exists, create a zip file containing README and all .hdl files
-pwd
-if [ $CORRECT = $COUNT -a -f README ]
+if [ $CORRECT = $COUNT ]
+then
+    if [ ! -f README ]
+    then 
+        echo "No README was found. Would you like to create one now?"
+        read RESPONSE
+        if [ $RESPONSE = "Y" ] || [ $RESPONSE = "y" ] || [ $RESPONSE = "yes" ] || [ $RESPONSE = "YES" ]
+        then
+            RE="YES"
+            vim README
+        fi
+    fi
+    if [ -f michaelhumphrey.zip ]
+    then
+        rm -f michaelhumphrey.zip
+    fi
+    if [[ $RE = "YES" ]] && [[ -f README ]]
     then
         echo "Creating a zip file containing README and all .hdl files"
+        rm -rf src
         mkdir src
         cp *.hdl src
         zip -r michaelhumphrey.zip src README >> /dev/null
-        rm -r src
+        rm -rf src
+    fi
 fi
 
 # Change directory to wherever user was previously
