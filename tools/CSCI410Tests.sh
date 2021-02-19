@@ -16,7 +16,7 @@ CORRECT=0                                                   # Initializes the nu
 
 # Changes directory to wherever the project is located (CHANGE THIS TO WHEREVER YOU HAVE YOUR PROJECT STORED)
 cd /u/au/sw/michaelhumphrey/GitHubRepositories/CSCI410/projects/$PROJECT
-#cd ~/GithubRepositories/CSCI410/projects/$PROJECT
+cd ~/GithubRepositories/CSCI410/projects/$PROJECT
 
 COUNT=$(ls *.tst | wc -l)                                   # Stores the count of all .tst files in the given directory
 
