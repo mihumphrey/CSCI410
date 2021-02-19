@@ -10,3 +10,51 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+
+/*
+    ALGORITHM:
+        R2 = 0
+        while (R0 > 0)
+            R2 += R1
+            R0--
+*/
+
+@INIT
+0;JMP
+
+@0
+D=A
+@R0
+M=D
+
+@2
+D=A
+@R1
+M=D
+
+(INIT)
+    @0
+    D=A
+    @R2
+    M=D
+
+(LOOP)
+    @R0
+    D=M
+    @END
+    D;JLE
+
+    @R0
+    M=M-1
+
+    @R1
+    D=M
+    @R2
+    M=M+D
+
+    @LOOP
+    0;JMP
+
+(END)
+    @END
+    0;JMP
