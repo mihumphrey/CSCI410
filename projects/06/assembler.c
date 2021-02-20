@@ -9,7 +9,7 @@ struct assembler *assembler() {
     asmb -> st -> symbolList = malloc(4 * sizeof(struct symbol));
     asmb -> st -> size = 4;
     asmb -> st -> used = 0;
-    asmb -> st -> nextRamAddr = 0;
+    asmb -> st -> nextRamAddr = 16;
     
     insertSymbol(asmb -> st, createSymbol("R0", 0, PREDEFINED));
     insertSymbol(asmb -> st, createSymbol("R1", 1, PREDEFINED));
@@ -28,6 +28,8 @@ struct assembler *assembler() {
     insertSymbol(asmb -> st, createSymbol("R14", 14, PREDEFINED));
     insertSymbol(asmb -> st, createSymbol("R15", 15, PREDEFINED));
 
+    
+
     insertSymbol(asmb -> st, createSymbol("SCREEN", 16384, PREDEFINED));
     insertSymbol(asmb -> st, createSymbol("KBD", 24576, PREDEFINED));
     return asmb;
@@ -43,12 +45,58 @@ struct symbol createSymbol(char *name, int memAddr, enum memType mt) {
     return s;
 }
 
+char *getComp(char *name) {
+    if (strncmp(name, "0", strlen(name)) == 0) return "101010";
+    if (strncmp(name, "1", strlen(name)) == 0) return "111111";
+    if (strncmp(name, "-1", strlen(name)) == 0) return "111010";
+    if (strncmp(name, "D", strlen(name)) == 0) return "001100";
+    if (strncmp(name, "A", strlen(name)) == 0 || strncmp(name, "M", strlen(name)) == 0) return "110000";
+    if (strncmp(name, "!D", strlen(name)) == 0) return "001101";
+    if (strncmp(name, "!A", strlen(name)) == 0 || strncmp(name, "!M", strlen(name)) == 0) return "110001";
+    if (strncmp(name, "-D", strlen(name)) == 0) return "001111";
+    if (strncmp(name, "-A", strlen(name)) == 0 || strncmp(name, "-M", strlen(name)) == 0) return "110011";
+    if (strncmp(name, "D+1", strlen(name)) == 0) return "011111";
+    if (strncmp(name, "A+1", strlen(name)) == 0 || strncmp(name, "M+1", strlen(name)) == 0) return "110111";
+    if (strncmp(name, "D-1", strlen(name)) == 0) return "001110";
+    if (strncmp(name, "A-1", strlen(name)) == 0 || strncmp(name, "M-1", strlen(name)) == 0) return "110010";
+    if (strncmp(name, "D+A", strlen(name)) == 0 || strncmp(name, "D+M", strlen(name)) == 0) return "000010";
+    if (strncmp(name, "D-A", strlen(name)) == 0 || strncmp(name, "D-M", strlen(name)) == 0) return "010011";
+    if (strncmp(name, "A-D", strlen(name)) == 0 || strncmp(name, "M-D", strlen(name)) == 0) return "000111";
+    if (strncmp(name, "D&A", strlen(name)) == 0 || strncmp(name, "D&M", strlen(name)) == 0) return "000000";
+    if (strncmp(name, "D|A", strlen(name)) == 0 || strncmp(name, "D|M", strlen(name)) == 0) return "010101";
+    ASSERT(1 == 0, "could not find comp");
+}
+
+char *getDest(char *name) {
+    if (name == NULL) return "000";
+    if (strncmp(name, "M", strlen(name)) == 0) return "001";
+    if (strncmp(name, "D", strlen(name)) == 0) return "010";
+    if (strncmp(name, "MD", strlen(name)) == 0) return "011";
+    if (strncmp(name, "A", strlen(name)) == 0) return "100";
+    if (strncmp(name, "AM", strlen(name)) == 0) return "101";
+    if (strncmp(name, "AD", strlen(name)) == 0) return "110";
+    if (strncmp(name, "AMD", strlen(name)) == 0) return "111";
+    ASSERT(1 == 0, "could not find dest");
+}
+
+char *getJump(char *name) {
+    if (name == NULL) return "000";
+    if (strncmp(name, "JGT", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JEQ", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JGE", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JLT", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JNE", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JLE", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JMP", strlen(name)) == 0) return "001";
+    ASSERT(1 == 0, "could not find jump");
+}
+
 void freeAssembler(struct assembler *as) {
    for (int i = 0; i < as -> st -> used; i++) {
         free(as -> st -> symbolList[i].name);
     } 
     free(as -> st -> symbolList);
-    free (as -> st);
+    free(as -> st);
     free(as);
 }
 
@@ -61,11 +109,9 @@ void insertSymbol(struct symbolTable *st, struct symbol symbol) {
 }
 
 bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr) {
-    printf("FINDING: %s\n\n", label);
     for (int i = 0; i < st -> used; i++) {
-        printf("NAME: %s\n", st -> symbolList[i].name);
         if (strncmp(st -> symbolList[i].name, label, strlen(label)) == 0) {
-            printf("\nVAL IN: %u\n\n", st -> symbolList[i].memAddr);
+            *memAddr = st -> symbolList[i].memAddr;
             return true;
         }
     }
@@ -73,11 +119,15 @@ bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr) {
 }
 
 char *toBinary(uint16_t input) {
-    printf("VALUE: %u\n\n", input);
-    for (unsigned i = 1 << 15; i > 0; i = i >> 1)
-        (input & i) ? printf("1") : printf("0");
-    printf("\n");
-    return "";
+    char *bin = malloc(16);
+    int count = 0;
+    for (unsigned i = 1 << 15; i > 0; i = i >> 1) {
+        if (input &i) 
+            bin[count] = '1';
+        else bin[count] = '0';
+        count++;
+    }
+    return bin;
 }
 
 void firstPass(struct assembler *as, FILE *file) {
@@ -109,7 +159,7 @@ void firstPass(struct assembler *as, FILE *file) {
                 break;
             }
         }
-        printf("%s", line);
+       // printf("%s", line);
         PC++;
     }
 }
@@ -128,27 +178,105 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
 
         for (int i = 0; i < strlen(line); i++) {
             if (line[i] == '(')
-                continue;
-            if (line[i] == '@') {
+                break;
+            else if (line[i] == '@') {
                 //Processing L-Type Command
                 for (int j = i + 1; j < strlen(line); j++) {
                     if (line[j] == ' ' || line[j] == '\n' || line[j] == '\0') {
-                        size_t len = ((size_t)j - (i + 1));
+                        size_t len = ((size_t)(j - 1) - (i + 1));
                         char *label = malloc(len + 1);
                         strncpy(label, &line[i + 1], len);
                         label[len] = '\0';
-                        uint16_t ramAddr;
-                        if (tableContains(as -> st, label, &ramAddr)) {
-                            printf("FOUND");
-                            char * bin = toBinary(ramAddr);                  
-                        } else {
-                            insertSymbol(as -> st, createSymbol(label, as -> st -> nextRamAddr++, RAM));
-                            
-                            char * bin = toBinary(ramAddr);                  
+
+                        if (strlen(label) == 1 && label[0] == '0') {
+                            char *bin = toBinary(0);
+                            fwrite(bin, strlen(bin), 1, out);
+                            fwrite("\n", 1, 1, out);
+                            break;
                         }
+                        int num;
+                        if (num = strtol(label, NULL, 10)) {
+                            char *bin = toBinary(num);
+                            fwrite(bin, strlen(bin), 1, out);
+                            fwrite("\n", 1, 1, out);
+                            break;
+                        }
+                    
+                        uint16_t ramAddr = 0;
+                        bool contains = tableContains(as -> st, label, &ramAddr);
+                        if (!contains) {
+                            ramAddr = as -> st -> nextRamAddr;
+                            insertSymbol(as -> st, createSymbol(label, as -> st -> nextRamAddr++, RAM));
+                        }
+                        char *bin = toBinary(ramAddr);                  
+                        fwrite(bin, strlen(bin), 1, out);
+                        fwrite("\n", 1, 1, out);
                         break;  
                     }
                 }
+                break;
+            } else if (line[i] != ' ' && line[i] != '\t' && line[i] != '\0' && line[i] != '(') {
+            
+                for (int j = i; j < strlen(line); j++) {
+                    if (line[j] == '/' || line[j] == '\n' || line[j] == '\0') {
+                        size_t len = ((size_t)(j - 1) - i);
+                        char instr[len + 1];
+                        strncpy(instr, &line[i], len);
+                        instr[len] = '\0';       
+                        char a = '0';
+                        char *comp;
+                        char *dest;
+                        char *jump;
+                        int ii;
+                        bool hasEQ = false;
+                        for (ii = 0; ii < strlen(instr); ii++) {
+                            if (instr[ii] == '=') {
+                                hasEQ = true;
+                                jump = getJump(NULL);
+                                size_t lenBefore = (size_t)ii;
+                                char destASM[lenBefore + 1];
+                                strncpy(destASM, instr, lenBefore);
+                                destASM[lenBefore] = '\0';
+                                dest = getDest(destASM);
+                                break;
+                            }
+                            if (instr[ii] == 'M')
+                                a = '1';
+                        }
+                        if (hasEQ) {
+                            char compASM[(strlen(instr) - ii) + 1];
+                            strncpy(compASM, &instr[ii + 1], strlen(instr) - (ii));
+                            compASM[strlen(instr) - (ii)] = '\0';
+                            comp = getComp(compASM);
+                            jump = getJump(NULL);
+                        } else {
+                            for (ii = 0; ii < strlen(instr); ii++) {
+                                if (instr[ii] == ';') {
+                                    break;
+                                }
+                            }
+                            dest = getDest(NULL);
+                            char compASM[ii + 1]; 
+                            strncpy(compASM, instr, ii);
+                            compASM[ii] = '\0';
+                            comp = getComp(compASM);
+
+                            char jumpASM[(strlen(instr) - ii) + 1];
+                            strncpy(jumpASM, &instr[ii + 1], strlen(instr) - ii);
+                            jumpASM[strlen(instr) - ii] = '\0';
+                            jump = getJump(jumpASM);
+                        }
+
+                        fwrite("111", 3, 1, out);
+                        fwrite(&a, 1, 1, out);
+                        fwrite(comp, strlen(comp), 1, out);
+                        fwrite(dest, strlen(dest), 1, out);
+                        fwrite(jump, strlen(jump), 1, out);
+                        fwrite("\n", 1, 1, out);
+                        break;
+                    }   
+                }
+                
                 break;
             }
         } 

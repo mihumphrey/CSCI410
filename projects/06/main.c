@@ -20,10 +20,11 @@ int main(int argc, char *argv[]) {
 
     struct assembler *assemb = assembler();
     FILE *file = fopen(filename, "r");
-    FILE *newFile = fopen(out, "rw+");
+    FILE *newFile = fopen(out, "w");
     firstPass(assemb, file);
     secondPass(assemb, file, newFile);
     fclose(file);
+    fclose(newFile);
 //    freeAssembler(assemb);
     
 //    free(out);

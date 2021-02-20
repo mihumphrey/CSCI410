@@ -18,8 +18,13 @@
 
 
 
+#define S(arg) #arg
+#define STR(arg) S(arg)
+
+
+
 enum memType {
-    PREDEFINED, RAM, ROM
+    PREDEFINED, RAM, ROM, A, COMP, DEST, JUMP
 };
 
 struct symbol {
@@ -49,6 +54,8 @@ void insertSymbol(struct symbolTable *st, struct symbol symbol);
 struct symbol createSymbol(char *name, int memAddr, enum memType mt);
 char *toBinary(uint16_t input);
 bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr);
-
+char *getDest(char *name);
+char *getComp(char *name);
+char *getJump(char *name);
 
 #endif //INC_06_ASSEMBLER_H
