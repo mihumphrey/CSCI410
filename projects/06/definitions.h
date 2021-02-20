@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifndef INC_06_DEFINITIONS_H
 #define INC_06_DEFINITIONS_H

@@ -7,31 +7,6 @@
 
 #include "definitions.h"
 
-#define R0 0
-#define R1 1
-#define R2 2
-#define R3 3
-#define R4 4
-#define R5 5
-#define R6 6
-#define R7 7
-#define R8 8
-#define R9 9
-#define R10 10
-#define R11 11
-#define R12 12
-#define R13 13
-#define R14 14
-#define R15 15
-
-#define SCREEN 16384
-#define KBD 24576
-#define SP 0
-#define LCL 1
-#define ARG 2
-#define THIS 3
-#define THAT 4
-
 #define NONE 000
 #define JGT 001
 #define JEQ 010
@@ -49,12 +24,13 @@ enum memType {
 
 struct symbol {
     char *name;
-    int memAddr;
+    uint16_t memAddr;
     enum memType mt;
 };
 
 struct symbolTable {
     struct symbol *symbolList;
+    uint16_t nextRamAddr;
     size_t used;
     size_t size;
 };
@@ -66,8 +42,13 @@ struct assembler {
 
 
 void firstPass(struct assembler *as, FILE *file);
+void secondPass(struct assembler *as, FILE *file, FILE *out);
 struct assembler *assembler();
+void freeAssembler(struct assembler *as);
 void insertSymbol(struct symbolTable *st, struct symbol symbol);
+struct symbol createSymbol(char *name, int memAddr, enum memType mt);
+char *toBinary(uint16_t input);
+bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr);
 
 
 #endif //INC_06_ASSEMBLER_H

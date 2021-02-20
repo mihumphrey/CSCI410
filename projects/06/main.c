@@ -3,10 +3,30 @@
 
 int main(int argc, char *argv[]) {
     ASSERT(argc == 2, "wrong number of arguments (must be 1 -- filename)");
+    char *filename = argv[1];
+     
+    int i;
+    for (i = 0; i < strlen(filename); i++) {
+        if (filename[i] == '.')
+            break;
+    
+    }
+    
+    char *out = malloc(i + 6);
+    strncpy(out, filename, i + 1);
+    strcat(out, "hack");
+    out[i + 6] = '\0';
+    printf("%s\n", out);
+
     struct assembler *assemb = assembler();
-    FILE *file = fopen(argv[1], "r");
+    FILE *file = fopen(filename, "r");
+    FILE *newFile = fopen(out, "rw+");
     firstPass(assemb, file);
+    secondPass(assemb, file, newFile);
     fclose(file);
+//    freeAssembler(assemb);
+    
+//    free(out);
     printf("Hello, World!\n");
     return 0;
 }
