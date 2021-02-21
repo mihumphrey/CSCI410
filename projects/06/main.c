@@ -25,9 +25,8 @@ int main(int argc, char *argv[]) {
     secondPass(assemb, file, newFile);
     fclose(file);
     fclose(newFile);
-//    freeAssembler(assemb);
+    freeAssembler(assemb);
     
 //    free(out);
-    printf("Hello, World!\n");
     return 0;
 }

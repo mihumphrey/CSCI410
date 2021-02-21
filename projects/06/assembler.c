@@ -28,6 +28,12 @@ struct assembler *assembler() {
     insertSymbol(asmb -> st, createSymbol("R14", 14, PREDEFINED));
     insertSymbol(asmb -> st, createSymbol("R15", 15, PREDEFINED));
 
+    insertSymbol(asmb -> st, createSymbol("SP", 0, PREDEFINED));
+    insertSymbol(asmb -> st, createSymbol("LCL", 1, PREDEFINED));
+    insertSymbol(asmb -> st, createSymbol("ARG", 2, PREDEFINED));
+    insertSymbol(asmb -> st, createSymbol("THIS", 3, PREDEFINED));
+    insertSymbol(asmb -> st, createSymbol("THAT", 4, PREDEFINED));
+
     
 
     insertSymbol(asmb -> st, createSymbol("SCREEN", 16384, PREDEFINED));
@@ -46,6 +52,7 @@ struct symbol createSymbol(char *name, int memAddr, enum memType mt) {
 }
 
 char *getComp(char *name) {
+    ASSERT(name != NULL, "comp cannot be null");
     if (strncmp(name, "0", strlen(name)) == 0) return "101010";
     if (strncmp(name, "1", strlen(name)) == 0) return "111111";
     if (strncmp(name, "-1", strlen(name)) == 0) return "111010";
@@ -82,12 +89,12 @@ char *getDest(char *name) {
 char *getJump(char *name) {
     if (name == NULL) return "000";
     if (strncmp(name, "JGT", strlen(name)) == 0) return "001";
-    if (strncmp(name, "JEQ", strlen(name)) == 0) return "001";
-    if (strncmp(name, "JGE", strlen(name)) == 0) return "001";
-    if (strncmp(name, "JLT", strlen(name)) == 0) return "001";
-    if (strncmp(name, "JNE", strlen(name)) == 0) return "001";
-    if (strncmp(name, "JLE", strlen(name)) == 0) return "001";
-    if (strncmp(name, "JMP", strlen(name)) == 0) return "001";
+    if (strncmp(name, "JEQ", strlen(name)) == 0) return "010";
+    if (strncmp(name, "JGE", strlen(name)) == 0) return "011";
+    if (strncmp(name, "JLT", strlen(name)) == 0) return "100";
+    if (strncmp(name, "JNE", strlen(name)) == 0) return "101";
+    if (strncmp(name, "JLE", strlen(name)) == 0) return "110";
+    if (strncmp(name, "JMP", strlen(name)) == 0) return "111";
     ASSERT(1 == 0, "could not find jump");
 }
 
@@ -142,10 +149,12 @@ void firstPass(struct assembler *as, FILE *file) {
                                                || line[0] == '\0')
             continue;
 
+        bool added;
         for (int i = 0; i < strlen(line); i++) {
-            if (line[i] != '(')
+            if (line[i] != '(') {
                 continue;
-            else {
+            } else {
+                added = true;
                 for (int j = i + 1; j < strlen(line); j++) {
                     if (line[j] == ')') {
                         size_t len = ((size_t)j - (i + 1));
@@ -160,7 +169,8 @@ void firstPass(struct assembler *as, FILE *file) {
             }
         }
        // printf("%s", line);
-        PC++;
+        if (!added) PC++;
+        added = false;
     }
 }
 
@@ -240,14 +250,17 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                                 dest = getDest(destASM);
                                 break;
                             }
-                            if (instr[ii] == 'M')
-                                a = '1';
                         }
                         if (hasEQ) {
+                            for (int k = ii; k < strlen(instr); k++)
+                                if (instr[k] == 'M')
+                                    a = '1';
                             char compASM[(strlen(instr) - ii) + 1];
                             strncpy(compASM, &instr[ii + 1], strlen(instr) - (ii));
                             compASM[strlen(instr) - (ii)] = '\0';
                             comp = getComp(compASM);
+                            if (instr[ii] == 'M')
+                                a = '1';
                             jump = getJump(NULL);
                         } else {
                             for (ii = 0; ii < strlen(instr); ii++) {
