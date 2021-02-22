@@ -11,14 +11,11 @@ int main(int argc, char *argv[]) {
             break;
     
     }
-/*    
-    char *out = malloc(i + 6);
+    
+    char out[i + 6];
     strncpy(out, filename, i + 1);
-    strncat(out, "hack", sizeof("hack"));
-    out[i + 6] = '\0';
-    printf("%s\n", out);
-*/
-    char *out = "rect/Rect.hack";
+    strcat(out, "hack");
+    out[i + 5] = '\0';
 
     struct assembler *assemb = assembler();
     FILE *file = fopen(filename, "r");

@@ -161,7 +161,7 @@ void firstPass(struct assembler *as, FILE *file) {
                 for (int j = i + 1; j < strlen(line); j++) {
                     if (line[j] == ')') {
                         size_t len = ((size_t)j - (i + 1));
-                        char *label = malloc(len + 1);//[len + 1];
+                        char *label = malloc(len + 1);
                         strncpy(label, &line[i + 1], len);
                         label[len] = '\0';
                         insertSymbol(as -> st, createSymbol(label, PC, ROM));
@@ -193,7 +193,6 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
             if (line[i] == '(')
                 break;
             else if (line[i] == '@') {
-                //Processing L-Type Command
                 for (int j = i + 1; j < strlen(line); j++) {
                     if (line[j] == ' ' || line[j] == '\n' || line[j] == '\0') {
                         size_t len = ((size_t)(j - 1) - (i + 1));
