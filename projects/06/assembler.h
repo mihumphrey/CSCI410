@@ -7,24 +7,8 @@
 
 #include "definitions.h"
 
-#define NONE 000
-#define JGT 001
-#define JEQ 010
-#define JGE 011
-#define JLT 100
-#define JNE 101
-#define JLE 110
-#define JMP 111
-
-
-
-#define S(arg) #arg
-#define STR(arg) S(arg)
-
-
-
 enum memType {
-    PREDEFINED, RAM, ROM, A, COMP, DEST, JUMP
+    PREDEFINED, RAM, ROM
 };
 
 struct symbol {

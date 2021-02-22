@@ -99,9 +99,11 @@ char *getJump(char *name) {
 }
 
 void freeAssembler(struct assembler *as) {
-   for (int i = 0; i < as -> st -> used; i++) {
-        free(as -> st -> symbolList[i].name);
-    } 
+    for (int i = 0; i < as -> st -> used; i++) {
+        if (as -> st -> symbolList[i].mt != PREDEFINED) {
+            free(as -> st -> symbolList[i].name);
+        }
+    }
     free(as -> st -> symbolList);
     free(as -> st);
     free(as);
@@ -126,7 +128,7 @@ bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr) {
 }
 
 char *toBinary(uint16_t input) {
-    char *bin = malloc(16);
+    char *bin = malloc(17);
     int count = 0;
     for (unsigned i = 1 << 15; i > 0; i = i >> 1) {
         if (input &i) 
@@ -134,6 +136,7 @@ char *toBinary(uint16_t input) {
         else bin[count] = '0';
         count++;
     }
+    bin[16] = '\0';
     return bin;
 }
 
@@ -158,17 +161,17 @@ void firstPass(struct assembler *as, FILE *file) {
                 for (int j = i + 1; j < strlen(line); j++) {
                     if (line[j] == ')') {
                         size_t len = ((size_t)j - (i + 1));
-                        char *label = malloc(len + 1);
+                        char *label = malloc(len + 1);//[len + 1];
                         strncpy(label, &line[i + 1], len);
                         label[len] = '\0';
                         insertSymbol(as -> st, createSymbol(label, PC, ROM));
+                        
                         break;
                     }
                 }
                 break;
             }
         }
-       // printf("%s", line);
         if (!added) PC++;
         added = false;
     }
@@ -194,21 +197,22 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                 for (int j = i + 1; j < strlen(line); j++) {
                     if (line[j] == ' ' || line[j] == '\n' || line[j] == '\0') {
                         size_t len = ((size_t)(j - 1) - (i + 1));
-                        char *label = malloc(len + 1);
+                        char *label = malloc(len +1);
                         strncpy(label, &line[i + 1], len);
                         label[len] = '\0';
-
                         if (strlen(label) == 1 && label[0] == '0') {
                             char *bin = toBinary(0);
-                            fwrite(bin, strlen(bin), 1, out);
-                            fwrite("\n", 1, 1, out);
+                            fprintf(out, "%s\n", bin);
+                            free(bin);
+                            free(label);
                             break;
                         }
                         int num;
                         if (num = strtol(label, NULL, 10)) {
                             char *bin = toBinary(num);
-                            fwrite(bin, strlen(bin), 1, out);
-                            fwrite("\n", 1, 1, out);
+                            fprintf(out, "%s\n", bin);
+                            free(bin);
+                            free(label);
                             break;
                         }
                     
@@ -217,10 +221,10 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                         if (!contains) {
                             ramAddr = as -> st -> nextRamAddr;
                             insertSymbol(as -> st, createSymbol(label, as -> st -> nextRamAddr++, RAM));
-                        }
+                        } else free(label);
                         char *bin = toBinary(ramAddr);                  
-                        fwrite(bin, strlen(bin), 1, out);
-                        fwrite("\n", 1, 1, out);
+                        fprintf(out, "%s\n", bin);
+                        free(bin);
                         break;  
                     }
                 }
