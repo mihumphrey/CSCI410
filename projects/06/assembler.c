@@ -180,7 +180,7 @@ void firstPass(struct assembler *as, FILE *file) {
 void secondPass(struct assembler *as, FILE *file, FILE *out) {
     ASSERT(file, "file not open");
     rewind(file);
-    ASSERT(file, "file not open");
+    ASSERT(out, "file not open");
     
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, file)) {
@@ -297,5 +297,5 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
             }
         } 
     }
-    
+    fclose(out);    
 }
