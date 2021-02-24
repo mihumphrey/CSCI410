@@ -8,82 +8,84 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
+				<Option working_dir="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="06">
-				<Option output="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/06.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="E:/mingw_x86/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include"/>
-					<Add directory="E:/mingw_x86/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"/>
-					<Add directory="E:/mingw_x86/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 06"/>
-					<CompileFile command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="06/fast">
-				<Option output="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/06.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="E:/mingw_x86/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include"/>
-					<Add directory="E:/mingw_x86/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"/>
-					<Add directory="E:/mingw_x86/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 06/fast"/>
-					<CompileFile command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
+				<Option working_dir="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
+				<Option working_dir="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="E:/mingw_x86/mingw64/bin/mingw32-make.exe -f &quot;E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="06">
+				<Option output="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/06" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 06"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="06/fast">
+				<Option output="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/06" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 06/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="E:/GitHub-Repositories/CSCI410/projects/06/assembler.c">
+		<Unit filename="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.c">
 			<Option target="06"/>
 		</Unit>
-		<Unit filename="E:/GitHub-Repositories/CSCI410/projects/06/assembler.h">
+		<Unit filename="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.h">
 			<Option target="06"/>
 		</Unit>
-		<Unit filename="E:/GitHub-Repositories/CSCI410/projects/06/main.c">
+		<Unit filename="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/main.c">
 			<Option target="06"/>
 		</Unit>
-		<Unit filename="E:/GitHub-Repositories/CSCI410/projects/06/CMakeLists.txt">
+		<Unit filename="/media/HDD1/GitHub-Repositories/CSCI410/projects/06/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

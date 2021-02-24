@@ -4,8 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "E:/GitHub-Repositories/CSCI410/projects/06/assembler.c" "E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/CMakeFiles/06.dir/assembler.c.obj"
-  "E:/GitHub-Repositories/CSCI410/projects/06/main.c" "E:/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/CMakeFiles/06.dir/main.c.obj"
+  "/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.c" "/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/CMakeFiles/06.dir/assembler.c.o"
+  "/media/HDD1/GitHub-Repositories/CSCI410/projects/06/main.c" "/media/HDD1/GitHub-Repositories/CSCI410/projects/06/cmake-build-debug/CMakeFiles/06.dir/main.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

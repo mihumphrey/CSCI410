@@ -78,7 +78,7 @@ char *getComp(char *name) {
 char *getDest(char *name) {
     if (name == NULL) printf("NULL DEST\n");
     if (name == NULL) return "000";
-    printf("DEST: %s, SIZE: %d\n", name, strlen(name));
+    //printf("DEST: %s, SIZE: %d\n", name, strlen(name));
     if (strncmp(name, "M", strlen(name)) == 0) return "001";
     if (strncmp(name, "D", strlen(name)) == 0) return "010";
     if (strncmp(name, "MD", strlen(name)) == 0) return "011";
@@ -91,7 +91,7 @@ char *getDest(char *name) {
 
 char *getJump(char *name) {
     if (name == NULL) return "000";
-    printf("JUMP: %s, SIZE: %d\n", name, strlen(name));
+    //printf("JUMP: %s, SIZE: %d\n", name, strlen(name));
     if (strncmp(name, "JGT", strlen(name)) == 0) return "001";
     if (strncmp(name, "JEQ", strlen(name)) == 0) return "010";
     if (strncmp(name, "JGE", strlen(name)) == 0) return "011";
@@ -158,6 +158,8 @@ void firstPass(struct assembler *as, FILE *file) {
 
         bool added;
         for (int i = 0; i < strlen(line); i++) {
+            if (line[i] == '/')
+                break;
             if (line[i] != '(') {
                 continue;
             } else {
@@ -198,8 +200,10 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                 break;
             else if (line[i] == '@') {
                 for (int j = i + 1; j < strlen(line); j++) {
-                    if (line[j] == ' ' || line[j] == '\n' || line[j] == '\0') {
+            //        printf("CHAR: %c\n", line[j]);
+                    if (line[j] == ' ' || line[j] == '\n' || line[j] == '\0' || line[j] == '/' || line[i] == '\t') {
                         size_t len = ((size_t)(j - 1) - (i + 1));
+             //           printf("LEN FOUND OF LINE: %d\n", len);
                         char *label = malloc(len +1);
                         strncpy(label, &line[i + 1], len);
                         label[len] = '\0';
@@ -232,73 +236,124 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                     }
                 }
                 break;
-            } else if (line[i] != ' ' && line[i] != '\t' && line[i] != '\0' && line[i] != '(') {
-                for (int j = i; j < strlen(line); j++) {
-                    if (line[j] == '/' || line[j] == '\n' || line[j] == '\0' || line[j + 1] == ' ' ) {
-                        size_t len = ((size_t)(j - 1) - i);
-                        char instr[len + 1];
-                        strncpy(instr, &line[i], len);
-                        instr[len] = '\0';       
-                        char a = '0';
-                        char *comp;
-                        char *dest;
-                        char *jump;
-                        int ii;
-                        bool hasEQ = false;
-printf("\n\n");
-                        for (ii = 0; ii < strlen(instr); ii++) {
-                            printf("%c",instr[ii]);
-                            if (instr[ii] == '=') {
-                                hasEQ = true;
-                                jump = getJump(NULL);
-                                size_t lenBefore = (size_t)ii;
-                                char destASM[lenBefore + 1];
-                                strncpy(destASM, instr, lenBefore);
-                                destASM[lenBefore] = '\0';
-                                printf("DESTASM: %s\n", destASM);
-                                dest = getDest(destASM);
-                                break;
-                            }
-                        }
-                        if (hasEQ) {
-                            for (int k = ii; k < strlen(instr); k++)
-                                if (instr[k] == 'M')
-                                    a = '1';
-                            char compASM[(strlen(instr) - ii) + 1];
-                            strncpy(compASM, &instr[ii + 1], strlen(instr) - (ii));
-                            compASM[strlen(instr) - (ii)] = '\0';
-                            comp = getComp(compASM);
-                            jump = getJump(NULL);
-                        } else {
-                            for (ii = 0; ii < strlen(instr); ii++) {
-                                if (instr[ii] == ';') {
-                                    break;
-                                }
-                            }
-                            dest = getDest(NULL);
-                            char compASM[ii + 1]; 
-                            strncpy(compASM, instr, ii);
-                            compASM[ii] = '\0';
-                            comp = getComp(compASM);
-
-                            char jumpASM[(strlen(instr) - ii) + 1];
-                            strncpy(jumpASM, &instr[ii + 1], strlen(instr) - ii);
-                            jumpASM[strlen(instr) - ii] = '\0';
-                            jump = getJump(jumpASM);
-                        }
-
-                        fwrite("111", 3, 1, out);
-                        fwrite(&a, 1, 1, out);
-                        fwrite(comp, strlen(comp), 1, out);
-                        fwrite(dest, strlen(dest), 1, out);
-                        fwrite(jump, strlen(jump), 1, out);
-                        fwrite("\n", 1, 1, out);
-                        break;
-                    }   
-                }
-                
+            } else if (line[i] != ' ' && line[i] != '\t' && line[i] != '\0') {
+                // handle C instruction
+                handleCInstr(line, i, out);
                 break;
             }
         } 
     }
+}
+
+void handleCInstr(char *line, int start, FILE *out) {
+    int i = 0;
+    char a = '0';
+    char *dest;
+    char *comp;
+    char *jump;
+
+    for (i = start; i < strlen(line); i++) {
+        if (line[i] == ' ' || line[i] == '/' || line[i] == '\0' || line[i] == '\n' || line[i] == '\r')
+            break;
+    }
+    //printf("START: %d, I: %d, LINE[start]: %c, LINE[i]: %c\n", start, i, line[start], line[i]);
+    char instr[(i - start) + 1];
+    //printf("LEN: %d\n", (i) - start);
+    strncpy(instr, &line[start], (i) - start);
+    instr[(i - start)] = '\0';
+
+    printf("INSTR FOUND: %s\n", instr);
+
+    bool doDest = false;
+    int sepLoc;
+    for (i = 0; i < strlen(instr); i++) {
+        if (instr[i] == '=') {
+            sepLoc = i;
+            doDest = true;
+            break;
+        }
+        if (instr[i] == ';') {
+            sepLoc = i;
+            break;
+        }
+    }
+
+
+
+    if (doDest) {
+        dest = handleDest(instr, sepLoc);
+        jump = getJump(NULL);
+    } else {
+        jump = handleJump(instr, sepLoc);
+        dest = getDest(NULL);
+    }
+    comp = handleComp(instr, sepLoc, doDest, &a);
+
+    printf("COMP: %s\n", comp);
+    printf("DEST: %s\n", dest);
+    printf("JUMP: %s\n", jump);
+    printf("A: %c\n", a);
+
+    fprintf(out, "111");
+    fprintf(out, "%c", a);
+    fprintf(out, "%s", comp);
+    fprintf(out, "%s", dest);
+    fprintf(out, "%s\n", jump);
+
+
+
+/*    free(dest);
+    free(comp);
+    free(jump);*/
+}
+
+char *handleDest(char *instr, int sep) {
+    char before[sep + 1];
+    strncpy(before, instr, sep);
+    before[sep] = '\0';
+
+    //printf("BEFORE: %s\n", before);
+    char *dest = getDest(before);
+    return dest;
+}
+
+char *handleJump(char *instr, int sep) {
+    char before[((strlen(instr))- (sep + 1)) + 1];
+    strncpy(before, &instr[sep + 1], (strlen(instr)) - (sep + 1));
+    before[(strlen(instr)) - (sep + 1)] = '\0';
+
+    char *jump = getJump(before);
+    return jump;
+}
+
+char *handleComp(char *instr, int sep, bool doDest, char *a) {
+    if (doDest) {
+        char before[((strlen(instr)) - (sep + 1)) + 1];
+        strncpy(before, &instr[sep + 1], (strlen(instr)) - (sep + 1));
+        before[(strlen(instr)) - (sep + 1)] = '\0';
+
+        for (int i = 0; i < strlen(before); i++) {
+            if (before[i] == 'M')
+                *a = '1';
+        }
+
+
+        printf("COMPASM1: %s\n", before);
+        char *comp = getComp(before);
+        return comp;
+
+    } else {
+        char before[sep + 1];
+        strncpy(before, instr, sep);
+        before[sep] = '\0';
+        for (int i = 0; i < strlen(before); i++)
+            if (before[i] == 'M')
+                *a = '1';
+
+        printf("COMPASM2: %s\n", before);
+
+        char *comp = getComp(before);
+        return comp;
+    }
+
 }

@@ -6,23 +6,23 @@
 
 #IncludeRegexTransform: 
 
-E:/GitHub-Repositories/CSCI410/projects/06/assembler.c
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.c
 assembler.h
-E:/GitHub-Repositories/CSCI410/projects/06/assembler.h
-stdio.h
--
-stdlib.h
--
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.h
 
-E:/GitHub-Repositories/CSCI410/projects/06/assembler.h
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.h
 definitions.h
-E:/GitHub-Repositories/CSCI410/projects/06/definitions.h
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/definitions.h
 
-E:/GitHub-Repositories/CSCI410/projects/06/definitions.h
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/definitions.h
 stdio.h
 -
 stdlib.h
 -
 string.h
+-
+stdbool.h
+-
+stdint.h
 -
 

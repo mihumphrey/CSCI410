@@ -41,5 +41,11 @@ bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr);
 char *getDest(char *name);
 char *getComp(char *name);
 char *getJump(char *name);
+void handleCInstr(char *line, int sep, FILE *out);
+char *handleDest(char *instr, int sep);
+char *handleJump(char *instr, int sep);
+char *handleComp(char *instr, int sep, bool doDest, char *a);
+
+
 
 #endif //INC_06_ASSEMBLER_H

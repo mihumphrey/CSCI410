@@ -1,10 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/06.dir/main.c.obj"
-  "CMakeFiles/06.dir/assembler.c.obj"
+  "06"
   "06.pdb"
-  "06.exe"
-  "06.exe.manifest"
-  "lib06.dll.a"
+  "CMakeFiles/06.dir/assembler.c.o"
+  "CMakeFiles/06.dir/main.c.o"
 )
 
 # Per-language clean rules from dependency scanning.

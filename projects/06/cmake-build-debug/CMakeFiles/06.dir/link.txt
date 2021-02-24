@@ -1,3 +1,1 @@
-"E:\CLion 2018.3.3\bin\cmake\win\bin\cmake.exe" -E remove -f CMakeFiles\06.dir/objects.a
-E:\mingw_x86\mingw64\bin\ar.exe cr CMakeFiles\06.dir/objects.a @CMakeFiles\06.dir\objects1.rsp
-E:\mingw_x86\mingw64\bin\gcc.exe -g   -Wl,--whole-archive CMakeFiles\06.dir/objects.a -Wl,--no-whole-archive  -o 06.exe -Wl,--out-implib,lib06.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\06.dir\linklibs.rsp
+/usr/bin/cc -g   CMakeFiles/06.dir/main.c.o CMakeFiles/06.dir/assembler.c.o  -o 06 
