@@ -52,6 +52,7 @@ struct symbol createSymbol(char *name, int memAddr, enum memType mt) {
 }
 
 char *getComp(char *name) {
+    printf("COMP: %s, SIZE: %d\n", name, strlen(name));
     ASSERT(name != NULL, "comp cannot be null");
     if (strncmp(name, "0", strlen(name)) == 0) return "101010";
     if (strncmp(name, "1", strlen(name)) == 0) return "111111";
@@ -75,7 +76,9 @@ char *getComp(char *name) {
 }
 
 char *getDest(char *name) {
+    if (name == NULL) printf("NULL DEST\n");
     if (name == NULL) return "000";
+    printf("DEST: %s, SIZE: %d\n", name, strlen(name));
     if (strncmp(name, "M", strlen(name)) == 0) return "001";
     if (strncmp(name, "D", strlen(name)) == 0) return "010";
     if (strncmp(name, "MD", strlen(name)) == 0) return "011";
@@ -88,6 +91,7 @@ char *getDest(char *name) {
 
 char *getJump(char *name) {
     if (name == NULL) return "000";
+    printf("JUMP: %s, SIZE: %d\n", name, strlen(name));
     if (strncmp(name, "JGT", strlen(name)) == 0) return "001";
     if (strncmp(name, "JEQ", strlen(name)) == 0) return "010";
     if (strncmp(name, "JGE", strlen(name)) == 0) return "011";
@@ -229,9 +233,8 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                 }
                 break;
             } else if (line[i] != ' ' && line[i] != '\t' && line[i] != '\0' && line[i] != '(') {
-            
                 for (int j = i; j < strlen(line); j++) {
-                    if (line[j] == '/' || line[j] == '\n' || line[j] == '\0') {
+                    if (line[j] == '/' || line[j] == '\n' || line[j] == '\0' || line[j + 1] == ' ' ) {
                         size_t len = ((size_t)(j - 1) - i);
                         char instr[len + 1];
                         strncpy(instr, &line[i], len);
@@ -242,7 +245,9 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                         char *jump;
                         int ii;
                         bool hasEQ = false;
+printf("\n\n");
                         for (ii = 0; ii < strlen(instr); ii++) {
+                            printf("%c",instr[ii]);
                             if (instr[ii] == '=') {
                                 hasEQ = true;
                                 jump = getJump(NULL);
@@ -250,6 +255,7 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                                 char destASM[lenBefore + 1];
                                 strncpy(destASM, instr, lenBefore);
                                 destASM[lenBefore] = '\0';
+                                printf("DESTASM: %s\n", destASM);
                                 dest = getDest(destASM);
                                 break;
                             }
@@ -262,8 +268,6 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
                             strncpy(compASM, &instr[ii + 1], strlen(instr) - (ii));
                             compASM[strlen(instr) - (ii)] = '\0';
                             comp = getComp(compASM);
-                            if (instr[ii] == 'M')
-                                a = '1';
                             jump = getJump(NULL);
                         } else {
                             for (ii = 0; ii < strlen(instr); ii++) {
@@ -297,5 +301,4 @@ void secondPass(struct assembler *as, FILE *file, FILE *out) {
             }
         } 
     }
-    fclose(out);    
 }

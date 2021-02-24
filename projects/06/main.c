@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     fclose(file);
     fclose(newFile);
     freeAssembler(assemb);
-    
-//    free(out);
+    free(out);
+
     return 0;
 }
