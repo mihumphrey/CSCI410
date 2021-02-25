@@ -11,10 +11,6 @@ assembler.h
 /media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.h
 
 /media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.h
-definitions.h
-/media/HDD1/GitHub-Repositories/CSCI410/projects/06/definitions.h
-
-/media/HDD1/GitHub-Repositories/CSCI410/projects/06/definitions.h
 stdio.h
 -
 stdlib.h
@@ -25,4 +21,8 @@ stdbool.h
 -
 stdint.h
 -
+
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/main.c
+assembler.h
+/media/HDD1/GitHub-Repositories/CSCI410/projects/06/assembler.h
 

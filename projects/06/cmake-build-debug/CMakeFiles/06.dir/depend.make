@@ -3,9 +3,7 @@
 
 CMakeFiles/06.dir/assembler.c.o: ../assembler.c
 CMakeFiles/06.dir/assembler.c.o: ../assembler.h
-CMakeFiles/06.dir/assembler.c.o: ../definitions.h
 
 CMakeFiles/06.dir/main.c.o: ../assembler.h
-CMakeFiles/06.dir/main.c.o: ../definitions.h
 CMakeFiles/06.dir/main.c.o: ../main.c
 
