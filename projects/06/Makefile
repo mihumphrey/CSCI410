@@ -7,7 +7,7 @@ assembler: $(SRCFILES) $(HFILES)
 	gcc -Wall -g -o assembler $(SRCFILES) -lm
 
 submission: assembler
-	zip -r michaelhumphrey.zip src rect max pong add Makefile README
+	zip -r michaelhumphrey.zip src bin rect max pong add Makefile README
 
 grade: assembler
 	make clean >/dev/null
