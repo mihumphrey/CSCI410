@@ -5,7 +5,16 @@
 #ifndef INC_06_ASSEMBLER_H
 #define INC_06_ASSEMBLER_H
 
-#include "definitions.h"
+// All includes for the program
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+// Macros to make debugging easier
+#define ASSERT(expr, err) if (!(expr)){fprintf(stderr, "\033[31m Error, %s, exiting... \033[0m\n", err); exit (1);}
+#define MAX_LINE_LENGTH 256
 
 enum memType {
     PREDEFINED, RAM, ROM
@@ -29,19 +38,20 @@ struct assembler {
 };
 
 
-
-void firstPass(struct assembler *as, FILE *file);
-void secondPass(struct assembler *as, FILE *file, FILE *out);
+// All functions defined in assembler.c
+void firstPass(struct assembler *as, FILE *inputFile);
+void secondPass(struct assembler *as, FILE *inputFile, FILE *outputFile);
 struct assembler *assembler();
 void freeAssembler(struct assembler *as);
 void insertSymbol(struct symbolTable *st, struct symbol symbol);
-struct symbol createSymbol(char *name, int memAddr, enum memType mt);
+struct symbol symbol(char *name, uint16_t memAddr, enum memType mt);
 char *toBinary(uint16_t input);
 bool tableContains(struct symbolTable *st, char *label, uint16_t *memAddr);
 char *getDest(char *name);
 char *getComp(char *name);
 char *getJump(char *name);
-void handleCInstr(char *line, int sep, FILE *out);
+void handleAInstruction(struct assembler *as, char *line, int i, FILE *outputFile);
+void handleCInstr(char *line, int sep, FILE *outputFile);
 char *handleDest(char *instr, int sep);
 char *handleJump(char *instr, int sep);
 char *handleComp(char *instr, int sep, bool doDest, char *a);
