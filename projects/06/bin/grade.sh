@@ -15,7 +15,7 @@ for FOLDER in add rect max pong; do
         TOTAL=$((TOTAL + 1))   
         ../../tools/Assembler.sh $ASM > /dev/null
         mv $NAME $FOLDER/correct.hack
-        ./run $ASM $1 
+        ./assembler $ASM $1 
         if ! diff -q $NAME $FOLDER/correct.hack &>/dev/null; then
             echo -en "${RED}FAIL"
             echo -en ${NC}

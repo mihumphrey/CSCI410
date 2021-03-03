@@ -1,49 +1,6 @@
 #include "translator.h"
 
-struct StackNode* newNode(int data) {
-    struct StackNode* stackNode = (struct StackNode*) malloc(sizeof(struct StackNode));
-    stackNode->data = data;
-    stackNode->next = NULL;
-    return stackNode;
-}
-
-bool isEmpty(struct StackNode *root) {
-    return !root;
-}
-
-void push(struct StackNode** root, int data) {
-    struct StackNode* stackNode = newNode(data);
-    stackNode->next = *root;
-    *root = stackNode;
-    printf("%d pushed to stack\n", data);
-}
-
-int pop(struct StackNode** root) {
-    if (isEmpty(*root))
-        return INT_MIN;
-    struct StackNode* temp = *root;
-    *root = (*root)->next;
-    int popped = temp->data;
-    printf("%d popped\n", popped);
-    free(temp);
- 
-    return popped;
-}
- 
-int peek(struct StackNode* root) {
-    if (isEmpty(root))
-        return INT_MIN;
-    return root->data;
-}
-
-void print(struct StackNode *root) {
-    while (root != NULL) {
-        printf("VALUE: %d\n", root -> data);
-        root = root -> next;
-    }
-}
-
-void parseCommands(struct StackNode **root, FILE *inputFile, FILE *outputFile) {
+void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum) {
     
     ASSERT(inputFile, "input file not open on parse")
     ASSERT(outputFile, "output file not open on parse")
@@ -71,53 +28,157 @@ void parseCommands(struct StackNode **root, FILE *inputFile, FILE *outputFile) {
         strncpy(instr, line, (eol) - sol);
         instr[(eol) - sol] = '\0';
 
-        printf("INSTR FOUND: %s\n", instr);
-        int countSpaces = 0;
-        for (int i = 0; i < strlen(instr); i++) {
-            if (instr[i] == ' ')
-                countSpaces++;
-        }
-        ASSERT(countSpaces == 2 || countSpaces == 0, "instruction formatted poorly")
-        if (countSpaces == 2) {
-            printf("THIS IS A STACK INSERT/DELETE\n");
-        } else if (countSpaces == 0) {
-            printf("THIS IS A STACK OP\n");
-            handleStackOp(root, instr, outputFile);
-        }
+        parseCommand(instr, outputFile, labelNum);
     }
+    fprintf(outputFile, "(END)\n");
+    fprintf(outputFile, "@END\n");
+    fprintf(outputFile, "0;JMP\n");
 }
 
-void handleStackOp(struct StackNode **root, char *instr, FILE *outputFile) {
-    int p1, p2, res;
-    if (strncmp(instr, "add", strlen(instr)) == 0) {
-        p1 = pop(root);
-        p2 = pop(root);
-        res = p1 + p2;
-        push(root, res);
-        return;
-    } else if (strncmp(instr, "sub", strlen(instr)) == 0) {
-        p1 = pop(root);
-        p2 = pop(root);
-        res = p2 - p1;
-        push(root, res);
-        return;
-    } else if (strncmp(instr, "add", strlen(instr)) == 0) {
-        p1 = pop(root);
-        p2 = pop(root);
-        res = p1 + p2;
-        push(root, res);
-        return;
-    } else if (strncmp(instr, "add", strlen(instr)) == 0) {
-        p1 = pop(root);
-        p2 = pop(root);
-        res = p1 + p2;
-        push(root, res);
-        return;
-    } else if (strncmp(instr, "add", strlen(instr)) == 0) {
-        p1 = pop(root);
-        p2 = pop(root);
-        res = p1 + p2;
-        push(root, res);
-        return;
+void parseCommand(char *instr, FILE *outputFile, int *labelNum) {
+    char *command[MAX_COMMAND_LENGTH];
+    int i = 1;
+    char *token = strtok(instr, " ");
+    command[0] = token;
+    while(token != NULL) {
+        token = strtok(NULL, " ");
+        if (token == NULL) break;
+        command[i] = token;
+        i++;
     }
-} 
+    
+    char *action = command[0];
+    if (strncmp(action, "push", strlen(action)) == 0) {
+        doPush(command, outputFile);
+    } else if (strncmp(action, "pop", strlen(action)) == 0) {
+        doPop(command, outputFile);
+    } else doArithmetic(command, outputFile, labelNum);
+}
+
+void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
+    char *segment = command[1];
+    char *offset = command[2];
+    ASSERT(segment, "segment cannot be null")
+    ASSERT(offset, "offset cannot be null")
+
+    if (strncmp(segment, "constant", strlen(segment)) == 0) {
+        fprintf(outputFile, "@SP\n");  
+        fprintf(outputFile, "AM=M-1\n");  
+        fprintf(outputFile, "D=M\n");  
+        fprintf(outputFile, "@%s\n", offset);  
+        fprintf(outputFile, "M=D\n");
+    } else if (strncmp(segment, "argument", strlen(segment)) == 0) {
+        
+    } else if (strncmp(segment, "local", strlen(segment)) == 0) {
+    
+    } else if (strncmp(segment, "this", strlen(segment)) == 0) {
+    
+    } else if (strncmp(segment, "that", strlen(segment)) == 0) {
+    
+    } else if (strncmp(segment, "temp", strlen(segment)) == 0) {
+
+    } else if (strncmp(segment, "pointer", strlen(segment)) == 0) {
+
+    } else if (strncmp(segment, "static", strlen(segment)) == 0) {
+
+    } else ASSERT(0 == 1, "segment not implemented")
+}
+
+void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
+    ASSERT(0 == 1, "not yet implemented")
+}
+
+void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labelNum) {
+    char *action = command[0];
+    if (strncmp(action, "eq", strlen(action)) != 0 && strncmp(action, "gt", strlen(action)) != 0 && strncmp(action, "lt", strlen(action)) != 0) {
+        fprintf(outputFile, "@SP\n");
+        fprintf(outputFile, "M=M-1\n");
+        fprintf(outputFile, "A=M\n");
+        fprintf(outputFile, "D=M\n");
+        fprintf(outputFile, "@SP\n");
+        if (strncmp(action, "add", strlen(action)) == 0) {
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "M=D+M\n");
+        } else if (strncmp(action, "sub", strlen(action)) == 0) {
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "M=M-D\n");
+        } else if (strncmp(action, "neg", strlen(action)) == 0) {
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "M=-M\n");
+        } else if (strncmp(action, "and", strlen(action)) == 0) {
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "M=M&D\n");
+        } else if (strncmp(action, "or", strlen(action)) == 0) {
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "M=M|D\n");
+        } else if (strncmp(action, "not", strlen(action)) == 0) {
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "M=!D\n");
+        } else ASSERT(0 == 1, "command not implemented")
+    } else {
+        if (strncmp(action, "eq", strlen(action)) == 0) {
+            char labelNumchar[MAX_LINE_LENGTH];
+            sprintf(labelNumchar, "%d", (*labelNum)++);
+            int len = strlen(labelNumchar) + 1;
+            char *label = calloc(1, len + 1);
+            label[0] = 'F';
+            strncat(&label[1], labelNumchar, len - 1);
+            label[len] = '\0'; 
+            
+            fprintf(outputFile, "@SP\n");
+            fprintf(outputFile, "M=M-1\n");
+            fprintf(outputFile, "A=M\n");
+            fprintf(outputFile, "D=M\n");
+            fprintf(outputFile, "@SP\n");
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "D=M-D\n");
+            fprintf(outputFile, "@%s\n", label); 
+            fprintf(outputFile, "D;JEQ\n");
+            fprintf(outputFile, "D=1\n");
+            fprintf(outputFile, "(%s)\n", label);
+            fprintf(outputFile, "    @SP\n");
+            fprintf(outputFile, "    A=M-1\n");
+            fprintf(outputFile, "    M=!D\n");
+            free(label);
+        } else if (strncmp(action, "lt", strlen(action)) == 0 || strncmp(action, "gt", strlen(action)) == 0) {
+            char labelNumcharF[MAX_LINE_LENGTH];
+            sprintf(labelNumcharF, "%d", (*labelNum)++);
+            int len = strlen(labelNumcharF) + 1;
+            char *labelF = calloc(1, len + 1);
+            labelF[0] = 'F';
+            strncat(&labelF[1], labelNumcharF, len - 1);
+            labelF[len] = '\0'; 
+
+            char labelNumcharT[MAX_LINE_LENGTH];
+            sprintf(labelNumcharT, "%d", (*labelNum)++);
+            int len2 = strlen(labelNumcharT) + 1;
+            char *labelT = calloc(1, len2 + 1);
+            labelT[0] = 'T';
+            strncat(&labelT[1], labelNumcharT, len2 - 1);
+            labelT[len] = '\0'; 
+
+            fprintf(outputFile, "@SP\n");
+            fprintf(outputFile, "M=M-1\n");
+            fprintf(outputFile, "A=M\n");
+            fprintf(outputFile, "D=M\n");
+            fprintf(outputFile, "@SP\n");
+            fprintf(outputFile, "A=M-1\n");
+            fprintf(outputFile, "D=M-D\n");
+            fprintf(outputFile, "@%s\n", labelT);
+            fprintf(outputFile, "D;%s\n", strncmp(action, "lt", strlen(action)) == 0 ? "JLE" : "JGT");
+            fprintf(outputFile, "D=0\n");
+            fprintf(outputFile, "D=!D\n");
+            fprintf(outputFile, "@%s\n", labelF);
+            fprintf(outputFile, "0;JMP\n");
+            fprintf(outputFile, "(%s)\n", labelT);
+            fprintf(outputFile, "   D=0\n");
+            fprintf(outputFile, "(%s)\n", labelF);
+            fprintf(outputFile, "   @SP\n");
+            fprintf(outputFile, "   A=M-1\n");
+            fprintf(outputFile, "   M=!D\n");
+            free(labelF);
+            free(labelT);
+        } else ASSERT(0 == 1, "unhandled action type");
+    } 
+}
+

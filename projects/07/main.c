@@ -16,12 +16,7 @@ int main(int argc, char *argv[]) {
     out[i + 4] = '\0';
 
     FILE *outputFile = fopen(out, "w");
-
-    struct StackNode *root = NULL;
-    push(&root, 1);
-    push(&root, 2);
-    parseCommands(&root, inputFile, outputFile);
-    printf("%d peeked\n",  peek(root));
-    print(root);
+    int labelCounter = 0;
+    parseCommands(inputFile, outputFile, &labelCounter);
     return 0;
 }
