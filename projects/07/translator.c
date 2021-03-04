@@ -1,5 +1,14 @@
 #include "translator.h"
-
+char *toASM(char *loc) {
+    if (STREQUALS(loc, "local"))
+        return "LCL";
+    if (STREQUALS(loc, "this"))
+        return "THIS";
+    if (STREQUALS(loc, "that"))
+        return "THAT";
+    if (STREQUALS(loc, "argument"))
+        return "ARG";
+}
 void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum) {
     
     ASSERT(inputFile, "input file not open on parse")
@@ -30,9 +39,9 @@ void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum) {
 
         parseCommand(instr, outputFile, labelNum);
     }
-    fprintf(outputFile, "(END)\n");
-    fprintf(outputFile, "@END\n");
-    fprintf(outputFile, "0;JMP\n");
+    WRITE("(END)\n");
+    WRITE("@END\n");
+    WRITE("0;JMP\n");
 }
 
 void parseCommand(char *instr, FILE *outputFile, int *labelNum) {
@@ -48,9 +57,9 @@ void parseCommand(char *instr, FILE *outputFile, int *labelNum) {
     }
     
     char *action = command[0];
-    if (strncmp(action, "push", strlen(action)) == 0) {
+    if (STREQUALS(action, "push")) {
         doPush(command, outputFile);
-    } else if (strncmp(action, "pop", strlen(action)) == 0) {
+    } else if (STREQUALS(action, "pop")) {
         doPop(command, outputFile);
     } else doArithmetic(command, outputFile, labelNum);
 }
@@ -61,124 +70,203 @@ void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
     ASSERT(segment, "segment cannot be null")
     ASSERT(offset, "offset cannot be null")
 
-    if (strncmp(segment, "constant", strlen(segment)) == 0) {
-        fprintf(outputFile, "@SP\n");  
-        fprintf(outputFile, "AM=M-1\n");  
-        fprintf(outputFile, "D=M\n");  
-        fprintf(outputFile, "@%s\n", offset);  
-        fprintf(outputFile, "M=D\n");
-    } else if (strncmp(segment, "argument", strlen(segment)) == 0) {
-        
-    } else if (strncmp(segment, "local", strlen(segment)) == 0) {
-    
-    } else if (strncmp(segment, "this", strlen(segment)) == 0) {
-    
-    } else if (strncmp(segment, "that", strlen(segment)) == 0) {
-    
-    } else if (strncmp(segment, "temp", strlen(segment)) == 0) {
-
-    } else if (strncmp(segment, "pointer", strlen(segment)) == 0) {
-
-    } else if (strncmp(segment, "static", strlen(segment)) == 0) {
-
+    if (STREQUALS(segment, "constant")) { 
+        WRITE("@%s\n", offset)
+        WRITE("D=A\n")
+        WRITE("@SP\n")
+        WRITE("A=M\n")
+        WRITE("M=D\n")
+        WRITE("@SP\n")
+        WRITE("M=M+1\n")
+    } else if (STREQUALS(segment, "pointer")) {
+        int off = atoi(offset);
+        off += 3;
+        sprintf(offset, "%d", off); 
+        WRITE("@%s\n", offset) 
+        WRITE("D=M\n")
+    } else if (STREQUALS(segment, "temp")) {
+        int off = atoi(offset);
+        off += 5;
+        sprintf(offset, "%d", off); 
+        WRITE("@%s\n", offset) 
+        WRITE("D=M\n")
+    } else if (STREQUALS(segment, "static")) {
+        int off = atoi(offset);
+        off += 16;
+        sprintf(offset, "%d", off); 
+        WRITE("@%s\n", offset) 
+        WRITE("D=M\n")
+    } else if (STREQUALS(segment, "argument") || STREQUALS(segment, "local") || STREQUALS(segment, "this") || STREQUALS(segment, "that")) {
+        WRITE("@%s\n", toASM(segment))
+        WRITE("D=M\n")
+        WRITE("@%s\n", offset)
+        WRITE("A=D+A\n") 
+        WRITE("D=M\n")
     } else ASSERT(0 == 1, "segment not implemented")
 }
 
 void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
-    ASSERT(0 == 1, "not yet implemented")
+    char *segment = command[1];
+    char *offset = command[2];
+    if (STREQUALS(segment, "constant")) {
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@%s\n", offset)
+        WRITE("M=D\n")
+    } else if (STREQUALS(segment, "pointer")) {
+        int off = atoi(offset);
+        off += 3;
+        sprintf(offset, "%d", off);
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@%s\n", offset)
+        WRITE("M=D\n")
+    } else if (STREQUALS(segment, "temp")) {
+        int off = atoi(offset);
+        off += 5;
+        sprintf(offset, "%d", off);
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@%s\n", offset)
+        WRITE("M=D\n")
+    } else if (STREQUALS(segment, "static")) {
+        int off = atoi(offset);
+        off += 16;
+        sprintf(offset, "%d", off);
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@%s\n", offset)
+        WRITE("M=D\n")
+    } else if (STREQUALS(segment, "argument") || STREQUALS(segment, "local") || STREQUALS(segment, "this") || STREQUALS(segment, "that")) {
+        WRITE("@%s\n", toASM(segment))
+        WRITE("D=M\n")
+        WRITE("@%s\n", offset)
+        WRITE("D=D+A\n")
+        WRITE("@13\n")
+        WRITE("M=D\n")
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@13\n")
+        WRITE("A=M\n")
+        WRITE("M=D\n")
+    } else ASSERT(0 == 1, "not yet implemented")
 }
 
 void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labelNum) {
     char *action = command[0];
-    if (strncmp(action, "eq", strlen(action)) != 0 && strncmp(action, "gt", strlen(action)) != 0 && strncmp(action, "lt", strlen(action)) != 0) {
-        fprintf(outputFile, "@SP\n");
-        fprintf(outputFile, "M=M-1\n");
-        fprintf(outputFile, "A=M\n");
-        fprintf(outputFile, "D=M\n");
-        fprintf(outputFile, "@SP\n");
-        if (strncmp(action, "add", strlen(action)) == 0) {
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "M=D+M\n");
-        } else if (strncmp(action, "sub", strlen(action)) == 0) {
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "M=M-D\n");
-        } else if (strncmp(action, "neg", strlen(action)) == 0) {
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "M=-M\n");
-        } else if (strncmp(action, "and", strlen(action)) == 0) {
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "M=M&D\n");
-        } else if (strncmp(action, "or", strlen(action)) == 0) {
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "M=M|D\n");
-        } else if (strncmp(action, "not", strlen(action)) == 0) {
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "M=!D\n");
-        } else ASSERT(0 == 1, "command not implemented")
-    } else {
-        if (strncmp(action, "eq", strlen(action)) == 0) {
-            char labelNumchar[MAX_LINE_LENGTH];
-            sprintf(labelNumchar, "%d", (*labelNum)++);
-            int len = strlen(labelNumchar) + 1;
-            char *label = calloc(1, len + 1);
-            label[0] = 'F';
-            strncat(&label[1], labelNumchar, len - 1);
-            label[len] = '\0'; 
+    if (STREQUALS(action, "add")) {
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=M+D\n")
+    } else if (STREQUALS(action, "sub")) {
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=M-D\n")
+    } else if (STREQUALS(action, "neg")) {
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=-M\n")
+    } else if (STREQUALS(action, "and")) {
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=M&D\n")
+    } else if (STREQUALS(action, "or")) {
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=M|D\n")
+    } else if (STREQUALS(action, "not")) {
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=!M\n")
+    } else if (STREQUALS(action, "eq")) {
+        char labelNumchar[MAX_LINE_LENGTH];
+        sprintf(labelNumchar, "%d", (*labelNum)++);
+        int len = strlen(labelNumchar) + 1;
+        char *label = calloc(1, len + 1);
+        label[0] = 'L';
+        strncat(&label[1], labelNumchar, len - 1);
+        label[len] = '\0'; 
             
-            fprintf(outputFile, "@SP\n");
-            fprintf(outputFile, "M=M-1\n");
-            fprintf(outputFile, "A=M\n");
-            fprintf(outputFile, "D=M\n");
-            fprintf(outputFile, "@SP\n");
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "D=M-D\n");
-            fprintf(outputFile, "@%s\n", label); 
-            fprintf(outputFile, "D;JEQ\n");
-            fprintf(outputFile, "D=1\n");
-            fprintf(outputFile, "(%s)\n", label);
-            fprintf(outputFile, "    @SP\n");
-            fprintf(outputFile, "    A=M-1\n");
-            fprintf(outputFile, "    M=!D\n");
-            free(label);
-        } else if (strncmp(action, "lt", strlen(action)) == 0 || strncmp(action, "gt", strlen(action)) == 0) {
-            char labelNumcharF[MAX_LINE_LENGTH];
-            sprintf(labelNumcharF, "%d", (*labelNum)++);
-            int len = strlen(labelNumcharF) + 1;
-            char *labelF = calloc(1, len + 1);
-            labelF[0] = 'F';
-            strncat(&labelF[1], labelNumcharF, len - 1);
-            labelF[len] = '\0'; 
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("D=M-D\n")
+        WRITE("M=-1\n")
+        WRITE("@%s\n", label) 
+        WRITE("D;JEQ\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=0\n")
+        WRITE("(%s)\n", label)
+        free(label);
 
-            char labelNumcharT[MAX_LINE_LENGTH];
-            sprintf(labelNumcharT, "%d", (*labelNum)++);
-            int len2 = strlen(labelNumcharT) + 1;
-            char *labelT = calloc(1, len2 + 1);
-            labelT[0] = 'T';
-            strncat(&labelT[1], labelNumcharT, len2 - 1);
-            labelT[len] = '\0'; 
+    } else if (STREQUALS(action, "lt")) {
+        char labelNumchar[MAX_LINE_LENGTH];
+        sprintf(labelNumchar, "%d", (*labelNum)++);
+        int len = strlen(labelNumchar) + 1;
+        char *label = calloc(1, len + 1);
+        label[0] = 'L';
+        strncat(&label[1], labelNumchar, len - 1);
+        label[len] = '\0'; 
 
-            fprintf(outputFile, "@SP\n");
-            fprintf(outputFile, "M=M-1\n");
-            fprintf(outputFile, "A=M\n");
-            fprintf(outputFile, "D=M\n");
-            fprintf(outputFile, "@SP\n");
-            fprintf(outputFile, "A=M-1\n");
-            fprintf(outputFile, "D=M-D\n");
-            fprintf(outputFile, "@%s\n", labelT);
-            fprintf(outputFile, "D;%s\n", strncmp(action, "lt", strlen(action)) == 0 ? "JLE" : "JGT");
-            fprintf(outputFile, "D=0\n");
-            fprintf(outputFile, "D=!D\n");
-            fprintf(outputFile, "@%s\n", labelF);
-            fprintf(outputFile, "0;JMP\n");
-            fprintf(outputFile, "(%s)\n", labelT);
-            fprintf(outputFile, "   D=0\n");
-            fprintf(outputFile, "(%s)\n", labelF);
-            fprintf(outputFile, "   @SP\n");
-            fprintf(outputFile, "   A=M-1\n");
-            fprintf(outputFile, "   M=!D\n");
-            free(labelF);
-            free(labelT);
-        } else ASSERT(0 == 1, "unhandled action type");
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("D=M-D\n")
+            
+        WRITE("M=-1\n")
+        WRITE("@%s\n", label)
+        WRITE("D;JLT\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=0\n")
+        WRITE("(%s)\n", label)
+        free(label);
+    } else if (STREQUALS(action, "gt")) {
+        char labelNumchar[MAX_LINE_LENGTH];
+        sprintf(labelNumchar, "%d", (*labelNum)++);
+        int len = strlen(labelNumchar) + 1;
+        char *label = calloc(1, len + 1);
+        label[0] = 'L';
+        strncat(&label[1], labelNumchar, len - 1);
+        label[len] = '\0'; 
+
+        WRITE("@SP\n")
+        WRITE("AM=M-1\n")
+        WRITE("D=M\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("D=M-D\n")
+            
+        WRITE("M=-1\n")
+        WRITE("@%s\n", label)
+        WRITE("D;JGT\n")
+        WRITE("@SP\n")
+        WRITE("A=M-1\n")
+        WRITE("M=0\n")
+        WRITE("(%s)\n", label)
+        free(label);
     } 
 }
 

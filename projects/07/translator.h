@@ -3,11 +3,14 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <string.h>
+#include <stdint.h>
 
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
 
 #define ASSERT(arg, err) if (!(arg)) {fprintf(stderr,"\033[31mError, %s, exiting...\033[0m\n", err); exit(1);} 
+#define STREQUALS(arg1, arg2) strncmp((arg1), (arg2), strlen((arg1))) == 0
+#define WRITE(...) fprintf(outputFile, __VA_ARGS__);
 #define MAX_LINE_LENGTH 256
 #define MAX_COMMAND_LENGTH 3
 
