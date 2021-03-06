@@ -20,5 +20,7 @@ void parseCommand(char *instr, FILE *outputFile, int *labelNum);
 void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile);
 void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile);
 void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labelNum);
+char *toASM(char *loc);
+char *getOffset(char *segment, char *offset);
 
 #endif
