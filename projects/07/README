@@ -1,0 +1,13 @@
+- Michael Humphrey
+- I did not receive help on this assignment
+- This assignment took ~4hrs to complete
+- I found that it was interesting how many patterns in the asm code developed
+
+ HOW TO RUN:
+ 
+ My program can be compiled by simply running 'make', then ran with the executable 'translator'
+     To run it in normal mode, simply type ./translator <VM FILE>, e.g. ./translator StackArithmetic/StackTest/StackTest.vm
+     To run it in verbose mode, simply add '-v' to the end, e.g. ./translator StackArithmetic/StackTest/StackTest.vm -v
+         This gives extra output as to how my program is working
+     To run all of the files given, simply type 'make grade'
+         **NOTE** This runs my translator on all given files, then runs the CPUEmulator on the .tst files and ensures that they pass.
