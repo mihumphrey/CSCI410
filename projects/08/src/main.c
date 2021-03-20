@@ -14,19 +14,29 @@ int main(int argc, char *argv[]) {
     char *filename = argv[1];
     int labelCounter = 0;
     int ra = 0;
+    char *currClass;
 
-    char *files[MAX_FILES_IN_DIR];
     struct stat path_stat;
     stat(filename, &path_stat);
-    int count = 0;
     FILE *outputFile = NULL;
+    char filenameCPY[strlen(filename)];
+    strcpy(filenameCPY, filename);
     if (S_ISDIR(path_stat.st_mode)) {
         
-        char *out = calloc(1, strlen(filename) + 10);
-        strncpy(out, filename, strlen(filename) + 1);
-        strcat(out, "/out.asm");
-        out[strlen(filename) + 9] = '\0';
-        //printf("OUTPUT: %s\n", out);
+        char *ptr, *last = NULL;
+        ptr = strtok(filenameCPY, "/");
+        while (ptr != NULL) {
+            printf("PTR: %s\n",ptr);
+            last = ptr;
+            ptr = strtok(NULL, "/");
+        }
+        ASSERT(last, "SDFASDF")
+        char out[PATH_MAX + 1];
+        strcpy(out, filename);
+        strcat(out, "/");
+        strcat(out, last);
+        strcat(out, ".asm");
+        out[PATH_MAX] = '\0';
         outputFile = fopen(out, "w");
 
         DIR *dir = opendir(filename);
@@ -49,14 +59,15 @@ int main(int argc, char *argv[]) {
                 strncat(fullPath, dp->d_name, PATH_MAX - 1);
                 fullPath[PATH_MAX - 1] = '\0';
 
-                files[count++] = fullPath;
+                currClass = dp->d_name;
+
                 if (verbose)
                     fprintf(stdout, "FILENAME: %s\n", fullPath);
                 
                 //fprintf(stderr, "OPENING: %s\n", fullPath);
                 FILE *inputFile = fopen(fullPath, "r");
                 ASSERT(inputFile, "not open")
-                parseCommands(inputFile, outputFile, &labelCounter, &ra);
+                parseCommands(inputFile, outputFile, &labelCounter, &ra, currClass);
                 fclose(inputFile);
             }
         }
@@ -76,12 +87,9 @@ int main(int argc, char *argv[]) {
         outputFile = fopen(out, "w");
         ASSERT(outputFile, "output file not open in main.c")
         ASSERT(inputFile, "inputFile not open")
-        parseCommands(inputFile, outputFile, &labelCounter, &ra);
+        parseCommands(inputFile, outputFile, &labelCounter, &ra, "main");
         fclose(inputFile);
     }
-    WRITE("(END)\n");
-    WRITE("@END\n");
-    WRITE("0;JMP\n");
     fclose(outputFile);
     return 0;
 }

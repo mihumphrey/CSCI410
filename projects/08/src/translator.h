@@ -23,11 +23,19 @@
 #define MAX_COMMAND_LENGTH 3
 #define MAX_FILES_IN_DIR 64
 
+typedef struct Translator {
+    FILE *inputFile;
+    FILE *outputFile;
+    int *labelNum;
+    int *ra;
+    char *currClass;
+} Translator
+
 // All functions used in this program
-void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra);
-void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, int *ra);
-void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile);
-void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile);
+void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra, char *currClass);
+void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, int *rai, char *currClass);
+void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currClass);
+void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currClass);
 void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labelNum);
 void doLabel(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc);
 void doIfGoto(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc);

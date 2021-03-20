@@ -75,7 +75,7 @@ void popCallStack(char *segment, FILE *outputFile) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra) {
+void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra, char *currClass) {
         
     ASSERT(inputFile, "input file not open on parse")
     ASSERT(outputFile, "output file not open on parse")
@@ -106,7 +106,7 @@ void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra) {
         if (verbose)
             fprintf(stderr, "* Found instruction: %s\n", instr);
 
-        parseCommand(instr, outputFile, labelNum, currFunct, ra);
+        parseCommand(instr, outputFile, labelNum, currFunct, ra, currClass);
     }
 }
 
@@ -120,7 +120,8 @@ void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, int *ra) {
+void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, int *ra, char *currClass) {
+    WRITE("//%s\n", instr)
     char *command[MAX_COMMAND_LENGTH];
     int i = 1;
     char *token = strtok(instr, " ");
@@ -134,9 +135,9 @@ void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, 
     
     char *action = command[0];
     if (STREQUALS(action, "push")) {
-        doPush(command, outputFile);
+        doPush(command, outputFile, currClass);
     } else if (STREQUALS(action, "pop")) {
-        doPop(command, outputFile);
+        doPop(command, outputFile, currClass);
     } else if (STREQUALS(action, "label")) {
         doLabel(command, outputFile, currFunc);
     } else if (STREQUALS(action, "if-goto")) {
@@ -162,7 +163,7 @@ void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, 
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
+void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currClass) {
     char *segment = command[1];
     char *offset = command[2];
     if (verbose) {
@@ -177,7 +178,10 @@ void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
         WRITE("D=A\n")
     } else if (STREQUALS(segment, "static") || STREQUALS(segment, "temp") || STREQUALS(segment, "pointer")) {
         offset = getOffset(segment, offset);
-        WRITE("@%s\n", offset)
+        if (STREQUALS(segment, "static"))
+            WRITE("@%s.%s\n", currClass, offset)
+        else
+            WRITE("@%s\n", offset)
         WRITE("D=M\n")
     } else if (STREQUALS(segment, "this") || STREQUALS(segment, "that") || STREQUALS(segment, "argument") || STREQUALS(segment, "local")) {
         WRITE("@%s\n", toASM(segment))
@@ -203,7 +207,7 @@ void doPush(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
+void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currClass) {
     char *segment = command[1];
     char *offset = command[2];
     if (verbose) {
@@ -235,7 +239,10 @@ void doPop(char *command[MAX_COMMAND_LENGTH], FILE *outputFile) {
         WRITE("@SP\n")
         WRITE("AM=M-1\n")
         WRITE("D=M\n")
-        WRITE("@%s\n", offset)
+        if (STREQUALS(segment, "static"))
+            WRITE("@%s.%s\n", currClass, offset)
+        else
+            WRITE("@%s\n", offset)
         WRITE("M=D\n")
     } else ASSERT(0 == 1, "segment not found in pop instruction")
 }
@@ -285,7 +292,7 @@ void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labe
         int len = strlen(labelNumchar) + 1;
         char *label = calloc(1, len + 1);
         label[0] = 'L';
-        strncat(&label[1], labelNumchar, len - 1);
+        strcat(&label[1], labelNumchar);
         label[len] = '\0'; 
             
         WRITE("@SP\n")
@@ -331,6 +338,7 @@ void doFunct(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc
     int nVars = atoi(numVars);
     printf("NVARS: %d\n", nVars);
     currFunc = label;
+    WRITE("(%s)\n", currFunc)
     for (int i = 0; i < nVars; i++) {
         WRITE("@SP\n")
         WRITE("A=M\n")
@@ -347,6 +355,7 @@ void doCall(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc,
     int nArgs = atoi(command[2]);
     if (verbose)
         fprintf(stderr, "\t* Pushing RA\n");
+    WRITE("//CALL FUNCT: %s\n", currFunc)
     WRITE("@return%s%d\n", currFunc, *ra)
     WRITE("D=A\n")
     WRITE("@SP\n")
@@ -393,10 +402,12 @@ void doCall(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc,
 }
 
 void doReturn(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc, int *ra) {
+    WRITE("//RET FUNCT: %s\n", currFunc)
     WRITE("@LCL\n")
     WRITE("D=M\n")
     WRITE("@13\n")
     WRITE("M=D\n")
+
     WRITE("@5\n")
     WRITE("A=D-A\n")
     WRITE("D=M\n")
