@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 
 CORRECT="End of script - Comparison ended successfully"
 
-for i in MemoryAccess/BasicTest/BasicTest.vm MemoryAccess/PointerTest/PointerTest.vm MemoryAccess/StaticTest/StaticTest.vm StackArithmetic/SimpleAdd/SimpleAdd.vm StackArithmetic/StackTest/StackTest.vm;do
+for i in ProgramFlow/FibonacciSeries ProgramFlow/BasicLoop FunctionCalls/FibonacciElement FunctionCalls/NestedCall FunctionCalls/SimpleFunction FunctionCalls/StaticsTest; do
     echo -en "Testing $i     \t"
     ./translator $i
     OUT=$(CPUEmulator.sh ${i%.vm}.tst 2>/dev/null )

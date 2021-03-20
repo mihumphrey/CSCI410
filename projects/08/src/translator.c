@@ -46,6 +46,23 @@ char *getOffset(char *segment, char *offset) {
     return offStr;
 }
 
+void pushCallStack(char *segment, FILE *outputFile) {
+    WRITE("@%s\n", segment)
+    WRITE("D=M\n")
+    WRITE("@SP\n")
+    WRITE("AM=M+1\n")
+    WRITE("A=A-1\n")
+    WRITE("M=D\n")
+}
+
+void popCallStack(char *segment, FILE *outputFile) {
+    WRITE("@13\n")
+    WRITE("AM=M-1\n")
+    WRITE("D=M\n")
+    WRITE("@%s\n", segment)
+    WRITE("M=D\n")
+}
+
 //********************************************************************************************************************//
 //* Function parseCommands                                                                                           *//
 //*     Input:                                                                                                       *//
@@ -58,11 +75,12 @@ char *getOffset(char *segment, char *offset) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum) {
-    
+void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum, int *ra) {
+        
     ASSERT(inputFile, "input file not open on parse")
     ASSERT(outputFile, "output file not open on parse")
     char line[MAX_LINE_LENGTH];
+    char *currFunct = "main";
     
     while (fgets(line, MAX_LINE_LENGTH, inputFile)) {
         if ((line[0] == '/' && line[1] == '/') || line[0] == '\n'
@@ -88,11 +106,8 @@ void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum) {
         if (verbose)
             fprintf(stderr, "* Found instruction: %s\n", instr);
 
-        parseCommand(instr, outputFile, labelNum);
+        parseCommand(instr, outputFile, labelNum, currFunct, ra);
     }
-    WRITE("(END)\n");
-    WRITE("@END\n");
-    WRITE("0;JMP\n");
 }
 
 //********************************************************************************************************************//
@@ -105,7 +120,7 @@ void parseCommands(FILE *inputFile, FILE *outputFile, int *labelNum) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void parseCommand(char *instr, FILE *outputFile, int *labelNum) {
+void parseCommand(char *instr, FILE *outputFile, int *labelNum, char *currFunc, int *ra) {
     char *command[MAX_COMMAND_LENGTH];
     int i = 1;
     char *token = strtok(instr, " ");
@@ -122,6 +137,18 @@ void parseCommand(char *instr, FILE *outputFile, int *labelNum) {
         doPush(command, outputFile);
     } else if (STREQUALS(action, "pop")) {
         doPop(command, outputFile);
+    } else if (STREQUALS(action, "label")) {
+        doLabel(command, outputFile, currFunc);
+    } else if (STREQUALS(action, "if-goto")) {
+        doIfGoto(command, outputFile, currFunc);
+    } else if (STREQUALS(action, "goto")) {
+        doGoto(command, outputFile, currFunc);
+    } else if (STREQUALS(action, "function")) {
+        doFunct(command, outputFile, currFunc);
+    } else if (STREQUALS(action, "call")) {
+        doCall(command, outputFile, currFunc, ra);
+    } else if (STREQUALS(action, "return")) {
+        doReturn(command, outputFile, currFunc, ra);
     } else doArithmetic(command, outputFile, labelNum);
 }
 
@@ -228,8 +255,8 @@ void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labe
     char *action = command[0];
     if (verbose) {
         fprintf(stderr, "\t* Action: %s\n", command[0]);
-        fprintf(stderr, "\t* Segment: %s\n", "NULL");
-        fprintf(stderr, "\t* Offset: %s\n", "NULL");
+        fprintf(stderr, "\t* Segment: %s\n", "NULL\n");
+        fprintf(stderr, "\t* Offset: %s\n", "NULL\n");
     }
     WRITE("@SP\n")
     if (STREQUALS(action, "add") || STREQUALS(action, "sub") || STREQUALS(action, "and") || STREQUALS(action, "or")) {
@@ -276,4 +303,125 @@ void doArithmetic(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, int *labe
         WRITE("(%s)\n", label)
         free(label);
     } else ASSERT(0 == 1, "arithmetic command not implemented")
+}
+
+void doLabel(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc) {
+    char *label = command[1];
+    WRITE("(%s$%s)\n", currFunc, label) 
+}
+
+void doIfGoto(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc) {
+    char *label = command[1];
+    WRITE("@SP\n")
+    WRITE("AM=M-1\n")
+    WRITE("D=M\n")
+    WRITE("@%s$%s\n", currFunc, label)
+    WRITE("D;JNE\n")
+}
+
+void doGoto(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc) {
+    char *label = command[1];
+    WRITE("@%s$%s\n", currFunc, label)
+    WRITE("0;JMP\n")
+}
+
+void doFunct(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc) {
+    char *label = command[1];
+    char *numVars = command[2];
+    int nVars = atoi(numVars);
+    printf("NVARS: %d\n", nVars);
+    currFunc = label;
+    for (int i = 0; i < nVars; i++) {
+        WRITE("@SP\n")
+        WRITE("A=M\n")
+        WRITE("M=0\n")
+        WRITE("@SP\n")
+        WRITE("M=M+1\n")
+    }
+}
+
+void doCall(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc, int *ra) {
+    if (verbose)
+        fprintf(stderr, "* In doCall\n");
+    char *label = command[1];
+    int nArgs = atoi(command[2]);
+    if (verbose)
+        fprintf(stderr, "\t* Pushing RA\n");
+    WRITE("@return%s%d\n", currFunc, *ra)
+    WRITE("D=A\n")
+    WRITE("@SP\n")
+    WRITE("AM=M+1\n")
+    WRITE("A=A-1\n")
+    WRITE("M=D\n")
+
+    if (verbose)
+        fprintf(stderr, "\t* Pushing LCL\n");
+    pushCallStack("LCL", outputFile);
+    if (verbose)
+        fprintf(stderr, "\t* Pushing ARG\n");
+    pushCallStack("ARG", outputFile);
+    if (verbose)
+        fprintf(stderr, "\t* Pushing THIS\n");
+    pushCallStack("THIS", outputFile);
+    if (verbose)
+        fprintf(stderr, "\t* Pushing THAT\n");
+    pushCallStack("THAT", outputFile);
+
+    if (verbose)
+        fprintf(stderr, "\t* Pushing ARG = SP - (nArgs + 5)\n");
+    WRITE("@SP\n")
+    WRITE("D=M\n")
+    WRITE("@%d\n", nArgs + 5)
+    WRITE("D=D-A\n")
+    WRITE("@ARG\n")
+    WRITE("M=D\n")
+
+    if (verbose)
+        fprintf(stderr, "\t* Pushing LCL = SP\n");
+    WRITE("@SP\n")
+    WRITE("D=M\n")
+    WRITE("@LCL\n")
+    WRITE("M=D\n")
+
+    if (verbose)
+        fprintf(stderr, "\t* GOTO function\n");
+    WRITE("@%s\n", label)
+    WRITE("0;JMP\n")
+    if (verbose)
+        fprintf(stderr, "\t* Setting Call label: (return%s%d)\n",currFunc, *ra );
+    WRITE("(return%s%d)\n", currFunc, (*ra)++)
+}
+
+void doReturn(char *command[MAX_COMMAND_LENGTH], FILE *outputFile, char *currFunc, int *ra) {
+    WRITE("@LCL\n")
+    WRITE("D=M\n")
+    WRITE("@13\n")
+    WRITE("M=D\n")
+    WRITE("@5\n")
+    WRITE("A=D-A\n")
+    WRITE("D=M\n")
+    WRITE("@14\n")
+    WRITE("M=D\n")
+
+    WRITE("@SP\n")
+    WRITE("AM=M-1\n")
+    WRITE("D=M\n")
+    WRITE("@ARG\n")
+    WRITE("A=M\n")
+    WRITE("M=D\n")
+
+    WRITE("@ARG\n")
+    WRITE("D=M+1\n")
+    WRITE("@SP\n")
+    WRITE("M=D\n")
+
+    popCallStack("THAT", outputFile);
+    popCallStack("THIS", outputFile);
+    popCallStack("ARG", outputFile);
+    popCallStack("LCL", outputFile);
+
+    WRITE("@14\n")
+    WRITE("A=M\n")
+    WRITE("0;JMP\n")
+    
 }
