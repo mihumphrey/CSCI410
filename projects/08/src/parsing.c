@@ -21,13 +21,14 @@ void parseCommands(Translator *translator) {
     char line[MAX_LINE_LENGTH];
     translator->currFunc = "main";
     
+  //  char *instr;
+    translator->line = malloc(MAX_LINE_LENGTH + 1);
     while (fgets(line, MAX_LINE_LENGTH, translator->inputFile)) {
         if ((line[0] == '/' && line[1] == '/') || line[0] == '\n'
                                                || line[0] == '\r'
                                                || line[0] == '\0')
             continue;
 
-        char *instr;
         int sol;
         for (sol = 0; sol < strlen(line); sol++) {
             if (line[sol] != ' ' && line[sol] != '\t')
@@ -39,16 +40,19 @@ void parseCommands(Translator *translator) {
                 break;
         }
     
-        instr = malloc(((eol) - sol) + 1);
-        strncpy(instr, line, (eol) - sol);
-        instr[(eol) - sol] = '\0';
+//        instr = malloc((eol - sol) + 1);
+//        strncpy(instr, line, (eol) - sol);
+//        instr[(eol) - sol] = '\0';
+//
+//        translator->currCommand[0] = instr;
+        strncpy(translator->line, line, eol-sol);
+        translator->line[eol - sol] = '\0';
         if (verbose)
-            fprintf(stderr, "* Found instruction: %s\n", instr);
-
-        translator->currCommand[0] = instr;
+            fprintf(stderr, "* Found instruction: %s\n", translator->line);
 
         parseCommand(translator);
     }
+    free(translator->line); 
 }
 //********************************************************************************************************************//
 //* Function parseCommand                                                                                            *//
@@ -63,7 +67,7 @@ void parseCommands(Translator *translator) {
 void parseCommand(Translator *translator) {
     char *command[MAX_COMMAND_LENGTH];
     int i = 1;
-    char *token = strtok(translator->currCommand[0], " ");
+    char *token = strtok(translator->line, " ");
     command[0] = token;
     while(token != NULL) {
         token = strtok(NULL, " ");

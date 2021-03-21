@@ -4,7 +4,7 @@ HFILES := $(wildcard src/*.h)
 all: translator
 
 translator: $(SRCFILES) $(HFILES)
-	gcc -Wall -Ofast -o translator $(SRCFILES) -lm
+	gcc -Wall -g -Ofast -o translator $(SRCFILES) -lm
 
 submission: translator
 	make clean >/dev/null

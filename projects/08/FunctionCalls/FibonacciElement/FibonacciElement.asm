@@ -80,11 +80,11 @@ M=0
 @SP
 AM=M-1
 D=M
-@Main.fibonacci$IF_TRUE
+@F_TRUE$IF_TRUE
 D;JNE
-@Main.fibonacci$IF_FALSE
+@ALSE$IF_FALSE
 0;JMP
-(Main.fibonacci$IF_TRUE)
+(TRUE$IF_TRUE)
 @ARG
 D=M
 @0
@@ -137,7 +137,7 @@ M=D
 @14
 A=M
 0;JMP
-(Main.fibonacci$IF_FALSE)
+(FALSE$IF_FALSE)
 @ARG
 D=M
 @0
@@ -161,7 +161,7 @@ D=M
 @SP
 A=M-1
 M=M-D
-@returnMain.fibonacci1
+@return.fibonacci1
 D=A
 @SP
 AM=M+1
@@ -203,7 +203,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(returnMain.fibonacci1)
+(return.fibonacci1)
 @ARG
 D=M
 @0
@@ -227,7 +227,7 @@ D=M
 @SP
 A=M-1
 M=M-D
-@returnMain.fibonacci2
+@return.fibonacci2
 D=A
 @SP
 AM=M+1
@@ -269,7 +269,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(returnMain.fibonacci2)
+(return.fibonacci2)
 @SP
 AM=M-1
 D=M
@@ -326,7 +326,7 @@ A=M
 M=D
 @SP
 M=M+1
-@returnSys.init3
+@return.fibonacci3
 D=A
 @SP
 AM=M+1
@@ -368,7 +368,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(returnSys.init3)
-(Sys.init$WHILE)
-@Sys.init$WHILE
+(return.fibonacci3)
+(LE$WHILE)
+@E$WHILE
 0;JMP

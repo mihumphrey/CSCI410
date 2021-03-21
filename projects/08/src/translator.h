@@ -12,6 +12,7 @@ typedef struct Translator {
     char *currClass;
     char *currCommand[MAX_COMMAND_LENGTH];
     char *currFunc;
+    char *line;
 } Translator;
 
 // All functions used in this program

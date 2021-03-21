@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
                 fclose(inputFile);
             }
         }
+        closedir(dir);
     } else {
         FILE *inputFile = fopen(filename, "r");
         translator->inputFile = inputFile;
