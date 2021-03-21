@@ -97,6 +97,9 @@ int main(int argc, char *argv[]) {
         parseCommands(translator);//inputFile, outputFile, &labelCounter, &ra, "main");
         fclose(inputFile);
     }
+    free(filenameCPY);
+    free(translator);
     fclose(outputFile);
+    
     return 0;
 }
