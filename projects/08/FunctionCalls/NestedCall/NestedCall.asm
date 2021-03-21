@@ -2,8 +2,7 @@
 D=A
 @SP
 M=D
-//CALL FUNCT: SYS
-@returnSYS0
+@returnmain0
 D=A
 @SP
 AM=M+1
@@ -45,10 +44,8 @@ D=M
 M=D
 @Sys.init
 0;JMP
-(returnSYS0)
-//function Sys.init 0
+(returnmain0)
 (Sys.init)
-//push constant 4000	
 @4000	
 D=A
 @SP
@@ -56,13 +53,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop pointer 0
 @SP
 AM=M-1
 D=M
 @3
 M=D
-//push constant 5000
 @5000
 D=A
 @SP
@@ -70,15 +65,12 @@ A=M
 M=D
 @SP
 M=M+1
-//pop pointer 1
 @SP
 AM=M-1
 D=M
 @4
 M=D
-//call Sys.main 0
-//CALL FUNCT: main
-@returnmain1
+@returnSys.init1
 D=A
 @SP
 AM=M+1
@@ -120,19 +112,15 @@ D=M
 M=D
 @Sys.main
 0;JMP
-(returnmain1)
-//pop temp 1
+(returnSys.init1)
 @SP
 AM=M-1
 D=M
 @6
 M=D
-//label LOOP
-(main$LOOP)
-//goto LOOP
-@main$LOOP
+(Sys.init$LOOP)
+@Sys.init$LOOP
 0;JMP
-//function Sys.main 5
 (Sys.main)
 @SP
 A=M
@@ -159,7 +147,6 @@ A=M
 M=0
 @SP
 M=M+1
-//push constant 4001
 @4001
 D=A
 @SP
@@ -167,13 +154,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop pointer 0
 @SP
 AM=M-1
 D=M
 @3
 M=D
-//push constant 5001
 @5001
 D=A
 @SP
@@ -181,13 +166,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop pointer 1
 @SP
 AM=M-1
 D=M
 @4
 M=D
-//push constant 200
 @200
 D=A
 @SP
@@ -195,7 +178,6 @@ A=M
 M=D
 @SP
 M=M+1
-//pop local 1
 @LCL
 D=M
 @1
@@ -208,7 +190,6 @@ D=M
 @13
 A=M
 M=D
-//push constant 40
 @40
 D=A
 @SP
@@ -216,7 +197,6 @@ A=M
 M=D
 @SP
 M=M+1
-//pop local 2
 @LCL
 D=M
 @2
@@ -229,7 +209,6 @@ D=M
 @13
 A=M
 M=D
-//push constant 6
 @6
 D=A
 @SP
@@ -237,7 +216,6 @@ A=M
 M=D
 @SP
 M=M+1
-//pop local 3
 @LCL
 D=M
 @3
@@ -250,7 +228,6 @@ D=M
 @13
 A=M
 M=D
-//push constant 123
 @123
 D=A
 @SP
@@ -258,9 +235,7 @@ A=M
 M=D
 @SP
 M=M+1
-//call Sys.add12 1
-//CALL FUNCT: main
-@returnmain2
+@returnSys.main2
 D=A
 @SP
 AM=M+1
@@ -302,14 +277,12 @@ D=M
 M=D
 @Sys.add12
 0;JMP
-(returnmain2)
-//pop temp 0
+(returnSys.main2)
 @SP
 AM=M-1
 D=M
 @5
 M=D
-//push local 0
 @LCL
 D=M
 @0
@@ -320,7 +293,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push local 1
 @LCL
 D=M
 @1
@@ -331,7 +303,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push local 2
 @LCL
 D=M
 @2
@@ -342,7 +313,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push local 3
 @LCL
 D=M
 @3
@@ -353,7 +323,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push local 4
 @LCL
 D=M
 @4
@@ -364,36 +333,30 @@ A=M
 M=D
 @SP
 M=M+1
-//add
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D
-//add
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D
-//add
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D
-//add
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D
-//return
-//RET FUNCT: main
 @LCL
 D=M
 @13
@@ -436,9 +399,7 @@ M=D
 @14
 A=M
 0;JMP
-//function Sys.add12 0
 (Sys.add12)
-//push constant 4002
 @4002
 D=A
 @SP
@@ -446,13 +407,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop pointer 0
 @SP
 AM=M-1
 D=M
 @3
 M=D
-//push constant 5002
 @5002
 D=A
 @SP
@@ -460,13 +419,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop pointer 1
 @SP
 AM=M-1
 D=M
 @4
 M=D
-//push argument 0
 @ARG
 D=M
 @0
@@ -477,7 +434,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push constant 12
 @12
 D=A
 @SP
@@ -485,15 +441,12 @@ A=M
 M=D
 @SP
 M=M+1
-//add
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D
-//return
-//RET FUNCT: main
 @LCL
 D=M
 @13

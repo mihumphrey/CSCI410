@@ -8,7 +8,7 @@ translator: $(SRCFILES) $(HFILES)
 
 submission: translator
 	make clean >/dev/null
-	zip -r michaelhumphrey.zip src bin MemoryAccess StackArithmetic Makefile README
+	zip -r michaelhumphrey.zip src bin ProgramFlow FunctionCalls Makefile README
 
 grade: translator
 	make clean >/dev/null

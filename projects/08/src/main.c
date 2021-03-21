@@ -1,9 +1,7 @@
+#include "includes.h"
+#include "parsing.h"
 #include "translator.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <limits.h> 
+
 bool verbose = false;
 
 int main(int argc, char *argv[]) {
@@ -12,25 +10,28 @@ int main(int argc, char *argv[]) {
         if (strncmp(argv[2], "-v", strlen(argv[2])) == 0)
             verbose = true;
     char *filename = argv[1];
-    int labelCounter = 0;
-    int ra = 0;
-    char *currClass;
+
+    Translator *translator = malloc(sizeof(Translator));
+
+    translator->labelNum = 0;
+    translator->ra = 0;
+    translator->currClass = "main";
+    translator->currFunc = "main";
 
     struct stat path_stat;
     stat(filename, &path_stat);
     FILE *outputFile = NULL;
-    char filenameCPY[strlen(filename)];
-    strcpy(filenameCPY, filename);
+    char *filenameCPY = malloc(strlen(filename) + 1);
+    memcpy(filenameCPY, filename, strlen(filename));
+    filenameCPY[strlen(filename)] = '\0';
     if (S_ISDIR(path_stat.st_mode)) {
         
         char *ptr, *last = NULL;
         ptr = strtok(filenameCPY, "/");
         while (ptr != NULL) {
-            printf("PTR: %s\n",ptr);
             last = ptr;
             ptr = strtok(NULL, "/");
         }
-        ASSERT(last, "SDFASDF")
         char out[PATH_MAX + 1];
         strcpy(out, filename);
         strcat(out, "/");
@@ -38,6 +39,7 @@ int main(int argc, char *argv[]) {
         strcat(out, ".asm");
         out[PATH_MAX] = '\0';
         outputFile = fopen(out, "w");
+        translator->outputFile = outputFile;
 
         DIR *dir = opendir(filename);
         struct dirent *dp;
@@ -46,8 +48,11 @@ int main(int argc, char *argv[]) {
         WRITE("D=A\n")
         WRITE("@SP\n")
         WRITE("M=D\n")
-        char *command[MAX_COMMAND_LENGTH] = {"call", "Sys.init", "0"};
-        doCall(command, outputFile, "SYS", &ra);
+        translator->currCommand[0] = "call";
+        translator->currCommand[1] = "Sys.init";
+        translator->currCommand[2] = "0";
+
+        doCall(translator);
         while ((dp = readdir(dir)) != NULL) {
             char fullPath[PATH_MAX ] = {0};
             memcpy(&fullPath, filename, strlen(filename));
@@ -59,20 +64,21 @@ int main(int argc, char *argv[]) {
                 strncat(fullPath, dp->d_name, PATH_MAX - 1);
                 fullPath[PATH_MAX - 1] = '\0';
 
-                currClass = dp->d_name;
+                translator->currClass = dp->d_name;
 
                 if (verbose)
-                    fprintf(stdout, "FILENAME: %s\n", fullPath);
+                    fprintf(stdout, "\n\nFILENAME: %s\n", fullPath);
                 
-                //fprintf(stderr, "OPENING: %s\n", fullPath);
                 FILE *inputFile = fopen(fullPath, "r");
+                translator->inputFile = inputFile;
                 ASSERT(inputFile, "not open")
-                parseCommands(inputFile, outputFile, &labelCounter, &ra, currClass);
+                parseCommands(translator);
                 fclose(inputFile);
             }
         }
     } else {
         FILE *inputFile = fopen(filename, "r");
+        translator->inputFile = inputFile;
         ASSERT(inputFile, "input file not open in main.c")
         int i;
         for (i = 0; i < strlen(filename); i++) {
@@ -85,9 +91,10 @@ int main(int argc, char *argv[]) {
         out[i + 4] = '\0';
 
         outputFile = fopen(out, "w");
+        translator->outputFile = outputFile;
         ASSERT(outputFile, "output file not open in main.c")
         ASSERT(inputFile, "inputFile not open")
-        parseCommands(inputFile, outputFile, &labelCounter, &ra, "main");
+        parseCommands(translator);//inputFile, outputFile, &labelCounter, &ra, "main");
         fclose(inputFile);
     }
     fclose(outputFile);
