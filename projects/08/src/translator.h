@@ -26,6 +26,6 @@ void doFunc(Translator *translator);
 void doCall(Translator *translator);
 void doReturn(Translator *translator);
 char *toASM(char *loc);
-char *getOffset(char *segment, char *offset);
+void getOffset(char *segment, char *offset);
 
 #endif

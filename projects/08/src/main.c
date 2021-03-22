@@ -16,7 +16,9 @@ int main(int argc, char *argv[]) {
     translator->labelNum = 0;
     translator->ra = 0;
     translator->currClass = "main";
-    translator->currFunc = "main";
+    translator->currFunc = calloc(1, MAX_LINE_LENGTH + 1);
+    strcpy(translator->currFunc, "main");
+    translator->line = calloc(1, MAX_LINE_LENGTH + 1);
 
     struct stat path_stat;
     stat(filename, &path_stat);
@@ -99,6 +101,8 @@ int main(int argc, char *argv[]) {
         fclose(inputFile);
     }
     free(filenameCPY);
+    free(translator->currFunc);
+    free(translator->line);
     free(translator);
     fclose(outputFile);
     

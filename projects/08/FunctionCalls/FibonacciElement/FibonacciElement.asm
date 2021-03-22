@@ -45,7 +45,9 @@ M=D
 @Sys.init
 0;JMP
 (returnmain0)
+//function Main.fibonacci 0
 (Main.fibonacci)
+//push argument 0
 @ARG
 D=M
 @0
@@ -56,6 +58,7 @@ A=M
 M=D
 @SP
 M=M+1
+//push constant 2
 @2
 D=A
 @SP
@@ -63,6 +66,7 @@ A=M
 M=D
 @SP
 M=M+1
+//lt                     
 @SP
 @SP
 AM=M-1
@@ -77,14 +81,18 @@ D;JLT
 A=M-1
 M=0
 (L0)
+//if-goto IF_TRUE
 @SP
 AM=M-1
 D=M
-@F_TRUE$IF_TRUE
+@Main.fibonacci$IF_TRUE
 D;JNE
-@ALSE$IF_FALSE
+//goto IF_FALSE
+@Main.fibonacci$IF_FALSE
 0;JMP
-(TRUE$IF_TRUE)
+//label IF_TRUE          
+(Main.fibonacci$IF_TRUE)
+//push argument 0        
 @ARG
 D=M
 @0
@@ -95,6 +103,7 @@ A=M
 M=D
 @SP
 M=M+1
+//return
 @LCL
 D=M
 @13
@@ -137,7 +146,9 @@ M=D
 @14
 A=M
 0;JMP
-(FALSE$IF_FALSE)
+//label IF_FALSE         
+(Main.fibonacci$IF_FALSE)
+//push argument 0
 @ARG
 D=M
 @0
@@ -148,6 +159,7 @@ A=M
 M=D
 @SP
 M=M+1
+//push constant 2
 @2
 D=A
 @SP
@@ -155,13 +167,15 @@ A=M
 M=D
 @SP
 M=M+1
+//sub
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M-D
-@return.fibonacci1
+//call Main.fibonacci 1  
+@returnMain.fibonacci1
 D=A
 @SP
 AM=M+1
@@ -203,7 +217,8 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(return.fibonacci1)
+(returnMain.fibonacci1)
+//push argument 0
 @ARG
 D=M
 @0
@@ -214,6 +229,7 @@ A=M
 M=D
 @SP
 M=M+1
+//push constant 1
 @1
 D=A
 @SP
@@ -221,13 +237,15 @@ A=M
 M=D
 @SP
 M=M+1
+//sub
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M-D
-@return.fibonacci2
+//call Main.fibonacci 1  
+@returnMain.fibonacci2
 D=A
 @SP
 AM=M+1
@@ -269,13 +287,15 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(return.fibonacci2)
+(returnMain.fibonacci2)
+//add                    
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D
+//return
 @LCL
 D=M
 @13
@@ -318,7 +338,9 @@ M=D
 @14
 A=M
 0;JMP
+//function Sys.init 0
 (Sys.init)
+//push constant 4
 @4
 D=A
 @SP
@@ -326,7 +348,8 @@ A=M
 M=D
 @SP
 M=M+1
-@return.fibonacci3
+//call Main.fibonacci 1   
+@returnSys.init3
 D=A
 @SP
 AM=M+1
@@ -368,7 +391,9 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(return.fibonacci3)
-(LE$WHILE)
-@E$WHILE
+(returnSys.init3)
+//label WHILE
+(Sys.init$WHILE)
+//goto WHILE              
+@Sys.init$WHILE
 0;JMP

@@ -30,10 +30,9 @@ char *toASM(char *loc) {
 //*         offset: char * -- current offset                                                                         *//
 //*     Increments the current offset by a set amount based on what the segment is                                   *//
 //*     Returns:                                                                                                     *//
-//*         New Offset: char *                                                                                       *//
+//*         void                                                                                                     *//
 //********************************************************************************************************************//
-char *getOffset(char *segment, char *offset) {
-    char *offStr = malloc(sizeof(offset));
+void getOffset(char *segment, char *offset) {
     int off = atoi(offset);
     if (STREQUALS(segment, "pointer"))
         off += 3;
@@ -42,8 +41,7 @@ char *getOffset(char *segment, char *offset) {
     else if (STREQUALS(segment, "static"))
         off += 16;
 
-    sprintf(offStr, "%d", off);
-    return offStr;
+    sprintf(offset, "%d", off);
 }
 
 //********************************************************************************************************************//
@@ -111,7 +109,7 @@ void doPush(Translator *translator) {
         WRITE("@%s\n", offset)
         WRITE("D=A\n")
     } else if (STREQUALS(segment, "static") || STREQUALS(segment, "temp") || STREQUALS(segment, "pointer")) {
-        offset = getOffset(segment, offset);
+        getOffset(segment, offset);
         if (STREQUALS(segment, "static"))
             WRITE("@%s.%s\n", translator->currClass, offset)
         else
@@ -129,6 +127,7 @@ void doPush(Translator *translator) {
     WRITE("M=D\n")
     WRITE("@SP\n")
     WRITE("M=M+1\n")
+    //free(offset);
 }
 
 //********************************************************************************************************************//
@@ -173,7 +172,7 @@ void doPop(Translator *translator) {
         WRITE("A=M\n")
         WRITE("M=D\n")
     } else if (STREQUALS(segment, "pointer") || STREQUALS(segment, "temp") || STREQUALS(segment, "static")) {
-        offset = getOffset(segment, offset);
+        getOffset(segment, offset);
         WRITE("@SP\n")
         WRITE("AM=M-1\n")
         WRITE("D=M\n")
@@ -183,6 +182,7 @@ void doPop(Translator *translator) {
             WRITE("@%s\n", offset)
         WRITE("M=D\n")
     } else ASSERT(0 == 1, "segment not found in pop instruction")
+    //free(offset);
 }
 
 //********************************************************************************************************************//
@@ -249,7 +249,7 @@ void doArithmetic(Translator *translator) {
         WRITE("A=M-1\n")
         WRITE("M=0\n")
         WRITE("(%s)\n", label)
-        free(label);
+        //free(label);
     } else ASSERT(0 == 1, "arithmetic command not implemented")
 }
 
@@ -332,7 +332,8 @@ void doFunc(Translator *translator) {
     int nVars = atoi(numVars);
     if (verbose)
         fprintf(stderr, "\t\t* Setting currFunc: %s\n", translator->currFunc);
-    translator->currFunc = label;
+    strcpy(translator->currFunc, label);
+    translator->currFunc[strlen(label)] = '\0';
     ASSERT(label, "label cannot be null")
     ASSERT(numVars, "numVars cannot be null")
     WRITE("(%s)\n", translator->currFunc)

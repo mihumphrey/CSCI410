@@ -19,10 +19,7 @@ void parseCommands(Translator *translator) {
     ASSERT(translator->inputFile, "input file not open on parse")
     ASSERT(translator->outputFile, "output file not open on parse")
     char line[MAX_LINE_LENGTH];
-    translator->currFunc = "main";
     
-  //  char *instr;
-    translator->line = malloc(MAX_LINE_LENGTH + 1);
     while (fgets(line, MAX_LINE_LENGTH, translator->inputFile)) {
         if ((line[0] == '/' && line[1] == '/') || line[0] == '\n'
                                                || line[0] == '\r'
@@ -40,19 +37,14 @@ void parseCommands(Translator *translator) {
                 break;
         }
     
-//        instr = malloc((eol - sol) + 1);
-//        strncpy(instr, line, (eol) - sol);
-//        instr[(eol) - sol] = '\0';
-//
-//        translator->currCommand[0] = instr;
         strncpy(translator->line, line, eol-sol);
         translator->line[eol - sol] = '\0';
+        WRITE("//%s\n", translator->line)
         if (verbose)
             fprintf(stderr, "* Found instruction: %s\n", translator->line);
 
         parseCommand(translator);
     }
-    free(translator->line); 
 }
 //********************************************************************************************************************//
 //* Function parseCommand                                                                                            *//
