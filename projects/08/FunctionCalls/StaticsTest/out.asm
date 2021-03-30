@@ -2,7 +2,7 @@
 D=A
 @SP
 M=D
-@returnmain0
+@returnSYS0
 D=A
 @SP
 AM=M+1
@@ -44,10 +44,7 @@ D=M
 M=D
 @Sys.init
 0;JMP
-(returnmain0)
-//function Class1.set 0
-(Class1.set)
-//push argument 0
+(returnSYS0)
 @ARG
 D=M
 @0
@@ -58,13 +55,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop static 0
 @SP
 AM=M-1
 D=M
-@Class1.vm.16
+@16
 M=D
-//push argument 1
 @ARG
 D=M
 @1
@@ -75,13 +70,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop static 1
 @SP
 AM=M-1
 D=M
-@Class1.vm.17
+@17
 M=D
-//push constant 0
 @0
 D=A
 @SP
@@ -89,7 +82,6 @@ A=M
 M=D
 @SP
 M=M+1
-//return
 @LCL
 D=M
 @13
@@ -132,32 +124,26 @@ M=D
 @14
 A=M
 0;JMP
-//function Class1.get 0
-(Class1.get)
-//push static 0
-@Class1.vm.16
+@16
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-//push static 1
-@Class1.vm.17
+@17
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-//sub
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M-D
-//return
 @LCL
 D=M
 @13
@@ -200,9 +186,6 @@ M=D
 @14
 A=M
 0;JMP
-//function Sys.init 0
-(Sys.init)
-//push constant 6
 @6
 D=A
 @SP
@@ -210,7 +193,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push constant 8
 @8
 D=A
 @SP
@@ -218,8 +200,7 @@ A=M
 M=D
 @SP
 M=M+1
-//call Class1.set 2
-@returnSys.init1
+@returnmain1
 D=A
 @SP
 AM=M+1
@@ -261,14 +242,12 @@ D=M
 M=D
 @Class1.set
 0;JMP
-(returnSys.init1)
-//pop temp 0 
+(returnmain1)
 @SP
 AM=M-1
 D=M
 @5
 M=D
-//push constant 23
 @23
 D=A
 @SP
@@ -276,7 +255,6 @@ A=M
 M=D
 @SP
 M=M+1
-//push constant 15
 @15
 D=A
 @SP
@@ -284,8 +262,7 @@ A=M
 M=D
 @SP
 M=M+1
-//call Class2.set 2
-@returnSys.init2
+@returnmain2
 D=A
 @SP
 AM=M+1
@@ -327,15 +304,13 @@ D=M
 M=D
 @Class2.set
 0;JMP
-(returnSys.init2)
-//pop temp 0 
+(returnmain2)
 @SP
 AM=M-1
 D=M
 @5
 M=D
-//call Class1.get 0
-@returnSys.init3
+@returnmain3
 D=A
 @SP
 AM=M+1
@@ -377,9 +352,8 @@ D=M
 M=D
 @Class1.get
 0;JMP
-(returnSys.init3)
-//call Class2.get 0
-@returnSys.init4
+(returnmain3)
+@returnmain4
 D=A
 @SP
 AM=M+1
@@ -421,15 +395,10 @@ D=M
 M=D
 @Class2.get
 0;JMP
-(returnSys.init4)
-//label WHILE
-(Sys.init$WHILE)
-//goto WHILE
-@Sys.init$WHILE
+(returnmain4)
+(main$WHILE)
+@main$WHILE
 0;JMP
-//function Class2.set 0
-(Class2.set)
-//push argument 0
 @ARG
 D=M
 @0
@@ -440,13 +409,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop static 0
 @SP
 AM=M-1
 D=M
-@Class2.vm.16
+@16
 M=D
-//push argument 1
 @ARG
 D=M
 @1
@@ -457,13 +424,11 @@ A=M
 M=D
 @SP
 M=M+1
-//pop static 1
 @SP
 AM=M-1
 D=M
-@Class2.vm.17
+@17
 M=D
-//push constant 0
 @0
 D=A
 @SP
@@ -471,7 +436,6 @@ A=M
 M=D
 @SP
 M=M+1
-//return
 @LCL
 D=M
 @13
@@ -514,32 +478,26 @@ M=D
 @14
 A=M
 0;JMP
-//function Class2.get 0
-(Class2.get)
-//push static 0
-@Class2.vm.16
+@16
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-//push static 1
-@Class2.vm.17
+@17
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-//sub
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M-D
-//return
 @LCL
 D=M
 @13
@@ -581,4 +539,7 @@ D=M
 M=D
 @14
 A=M
+0;JMP
+(END)
+@END
 0;JMP
