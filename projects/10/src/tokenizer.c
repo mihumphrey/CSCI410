@@ -1,57 +1,101 @@
 #include "tokenizer.h"
 
-char **parse(FILE *inputFile, FILE *outputFile) {
-    char *input[MAX_LINE_LENGTH];
-    bool isInComment = false;
-    ASSERT(inputFile, "input file not open for reading")
-    ASSERT(outputFile, "output file not open for writing")
-
-    char line[MAX_LINE_LENGTH];
+TokenList *getTokens(char *input) {
+    TokenList *tokens = calloc(1, sizeof(TokenList));
+    initList_Token(tokens, 1);
+    CharList *stringConst;
+    CharList *otherString;
+    bool inStringConst = false;
+    bool inOther = false;
     
-    while (fgets(line, MAX_LINE_LENGTH, inputFile)) {
-        bool cont = true;
-        if ((line[0] == '/' && line[1] == '/') || line[0] == '\n'
-                                               || line[0] == '\r'
-                                               || line[0] == '\0')
-            continue;
-
-        int sol;
-        for (sol = 0; sol < strlen(line); sol++) {
-            if (line[sol] != ' ' && line[sol] != '\t')
-                break;
-        }
-
-        int eol;
-        for (eol = sol; sol < strlen(line); eol++) {
-            if (line[eol] == '/' && line[eol + 1] == '/') {
-                cont = false;
-                break;
-            }
+    for (int i = 0; i < strlen(input); i++) {
+        bool insertSymbol = false, insertString = false;
+        Token *symbolToken = NULL;
+        Token *stringToken = NULL;
+        bool wasInOther = inOther;
+        if (inOther && input[i] == ' ' && !inStringConst) {
+            inOther = false;
+        } else if (isSymbol(input[i])) {
+            char *symbol = getSymbol(input[i]);
+            symbolToken = malloc(sizeof(Token));
+            symbolToken->name = symbol;
+            symbolToken->type = T_SYMBOL;
+            insertSymbol = true;
+            inOther = false;
+        } else if (input[i] == '"' && !inStringConst) {
+            inStringConst = true;
+            stringConst= malloc(sizeof(CharList));
+            initList_char(stringConst, 1);
+            inOther = false;
+        } else if (input[i] == '"' && inStringConst) {
+            inStringConst = false;
+            stringToken = malloc(sizeof(Token));
+            char *constName = calloc(1, stringConst->used + 1);
+            strncpy(constName, stringConst->list, stringConst->used );
+            constName[stringConst->used] = '\0';
+            stringToken->name = constName;
+            stringToken->type = T_STRING_CONST;
+            insertString = true;
+            inOther = false;
+        } else if (inStringConst) {
+            insertList_char(stringConst, input[i]);
+            inOther = false;
+        } else if (!inOther) {
+            inOther = true;
+            otherString = malloc(sizeof(CharList));
+            initList_char(otherString, 1);
+            if (input[i] != ' ')
+                insertList_char(otherString, input[i]);
+        } else if (inOther) {
+            if (input[i] != ' ')
+                insertList_char(otherString, input[i]);
+        } 
         
-            if (line[eol] == '/' && line[eol + 1] == '*') {
-                isInComment = true;
-                cont = false;
+        if (wasInOther && !inOther) {
+            bool isspace = false;
+            char *otherChar = calloc(1, otherString->used + 1);
+            strncpy(otherChar, otherString->list, otherString->used);
+            otherChar[otherString->used] = '\0';
+            if (STREQUALS(otherChar, " ")) {
+                isspace = true;
+                printf("BAHSALKFJALSKDJFL");
             }
 
-            if (line[eol] == '*' && line[eol + 1] == '/') {
-                isInComment = false;
-                cont = false;
+            if (!isspace) {
+                Token *t = malloc(sizeof(Token));
+                if (isKeyword(otherChar))
+                    t->type = T_KEYWORD;
+                else if (isNum(otherChar))
+                    t->type = T_INT_CONST;
+                else
+                    t->type = T_IDENTIFIER;
+        
+                t->name = otherChar;
+                insertList_Token(tokens, t);
             }
+        }
 
-            if (line[eol] == '\0' || line[eol] == '\n' || line[eol] == '\r' || (line[eol] == '/' && line[eol + 1] == '/'))
-                break;
+        if (insertSymbol) {
+            insertList_Token(tokens, symbolToken);
+        }
+        if (insertString) {
+            insertList_Token(tokens, stringToken);
         }
         
-        if (cont && !isInComment) {
-            char *command = calloc(1, (eol - sol) + 1);
-            strncpy(command, &line[sol], eol - sol);
-            command[eol - sol] = '\0';
-            printf("COMMAND: %s\n", command);
-        }
+    }     
+    printf("\n\n\n");
+
+    return tokens;    
+}
+
+void writeTokens(TokenList *tokens, FILE *outputFile) {
+    WRITE("<tokens>\n")
+    for (int i = 0; i < tokens->used; i++) {
+        char *name = tokens->list[i]->name;
+        char *type = getTokenType(tokens->list[i]->type);
+        WRITE("<%s> %s </%s>\n", type, name, type)
     }
-    return input;
+    WRITE("</tokens>")
 }
 
-Token *getTokens(FILE *inputfile) {
-    return NULL;    
-}
+

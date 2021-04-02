@@ -44,13 +44,14 @@ int main(int argc, char *argv[]) {
     
                 ASSERT(tokenOutputFile, "cannot open token output file to write")
                 ASSERT(parseOutputFile, "cannot open parse output file to write")
-                printf("INPUT: %s\n", input);
 
                 FILE *inputFile = fopen(input, "r");
                 ASSERT(inputFile, "cannot open input file to read")
-                parse(inputFile, tokenOutputFile);
-
-                
+  
+                char *out = parse(inputFile, tokenOutputFile);
+                printf("OUT: %s\n\n\n", out);
+                TokenList *tokens = getTokens(out);
+                writeTokens(tokens, tokenOutputFile);
 
             }        
         }

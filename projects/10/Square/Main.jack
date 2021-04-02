@@ -17,11 +17,6 @@ class Main {
       return;
     }
 
-    /*
-    TEJSAKL
-ASDFasdf
-    */
-
     function void more() {  // Added to test Jack syntax that is not used in
         var int i, j;       // the Square files.
         var String s;

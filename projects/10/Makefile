@@ -4,7 +4,7 @@ HFILES := $(wildcard src/*.h)
 all: compiler
 
 compiler: $(SRCFILES) $(HFILES)
-	gcc -Wall -g -Ofast -o compiler $(SRCFILES) -lm
+	gcc -Wall -g -Ofast -o compiler $(SRCFILES) -lm -fsanitize=address
 	
 submission: compiler
 	make clean >/dev/null
