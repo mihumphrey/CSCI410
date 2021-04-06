@@ -3,8 +3,8 @@
 TokenList *getTokens(char *input) {
     TokenList *tokens = calloc(1, sizeof(TokenList));
     initList_Token(tokens, 1);
-    CharList *stringConst;
-    CharList *otherString;
+    CharList *stringConst = NULL;
+    CharList *otherString = NULL;
     bool inStringConst = false;
     bool inOther = false;
     
@@ -15,6 +15,7 @@ TokenList *getTokens(char *input) {
         bool wasInOther = inOther;
         if (inOther && input[i] == ' ' && !inStringConst) {
             inOther = false;
+
         } else if (isSymbol(input[i])) {
             char *symbol = getSymbol(input[i]);
             symbolToken = malloc(sizeof(Token));
@@ -22,11 +23,13 @@ TokenList *getTokens(char *input) {
             symbolToken->type = T_SYMBOL;
             insertSymbol = true;
             inOther = false;
+
         } else if (input[i] == '"' && !inStringConst) {
             inStringConst = true;
             stringConst= malloc(sizeof(CharList));
             initList_char(stringConst, 1);
             inOther = false;
+
         } else if (input[i] == '"' && inStringConst) {
             inStringConst = false;
             stringToken = malloc(sizeof(Token));
@@ -37,15 +40,18 @@ TokenList *getTokens(char *input) {
             stringToken->type = T_STRING_CONST;
             insertString = true;
             inOther = false;
+
         } else if (inStringConst) {
             insertList_char(stringConst, input[i]);
             inOther = false;
+
         } else if (!inOther) {
             inOther = true;
             otherString = malloc(sizeof(CharList));
             initList_char(otherString, 1);
             if (input[i] != ' ')
                 insertList_char(otherString, input[i]);
+
         } else if (inOther) {
             if (input[i] != ' ')
                 insertList_char(otherString, input[i]);
@@ -53,7 +59,7 @@ TokenList *getTokens(char *input) {
         
         if (wasInOther && !inOther) {
             bool isspace = false;
-            char *otherChar = calloc(1, otherString->used + 1);
+            char *otherChar = malloc(otherString->used + 1);
             strncpy(otherChar, otherString->list, otherString->used);
             otherChar[otherString->used] = '\0';
             if (STREQUALS(otherChar, " ")) {
@@ -72,7 +78,8 @@ TokenList *getTokens(char *input) {
         
                 t->name = otherChar;
                 insertList_Token(tokens, t);
-            }
+            } else free(otherChar);
+            freeList_char(otherString);
         }
 
         if (insertSymbol) {
@@ -80,11 +87,10 @@ TokenList *getTokens(char *input) {
         }
         if (insertString) {
             insertList_Token(tokens, stringToken);
+            freeList_char(stringConst);
         }
         
     }     
-    printf("\n\n\n");
-
     return tokens;    
 }
 
@@ -97,5 +103,4 @@ void writeTokens(TokenList *tokens, FILE *outputFile) {
     }
     WRITE("</tokens>")
 }
-
 

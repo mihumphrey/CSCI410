@@ -4,8 +4,11 @@ HFILES := $(wildcard src/*.h)
 all: compiler
 
 compiler: $(SRCFILES) $(HFILES)
-	gcc -Wall -g -Ofast -o compiler $(SRCFILES) -lm -fsanitize=address
+	gcc -Wall -g -Ofast -o compiler $(SRCFILES) -lm 
 	
+debug: $(SRCFILES) $(HFILES)
+	gcc -Wall -g -Ofast -o compiler $(SRCFILES) -lm -fsanitize=address
+
 submission: compiler
 	make clean >/dev/null
 	zip -r michaelhumphrey.zip src bin ProgramFlow FunctionCalls Makefile README

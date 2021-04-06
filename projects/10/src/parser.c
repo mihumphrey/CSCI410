@@ -18,6 +18,7 @@ void freeList_char(CharList *tokens) {
     free(tokens->list);
     tokens->list = NULL;
     tokens->used = tokens->size = 0;
+    free(tokens);
 }
 
 void initList_Token(TokenList *tokens, size_t initialSize) {
@@ -35,9 +36,15 @@ void insertList_Token(TokenList *tokens, Token *element) {
 }
 
 void freeList_Token(TokenList *tokens) {
+    for (int i = 0; i < tokens->used; i++) {
+        printf("TOKEN: %s\n", tokens->list[i]->name);
+        free(tokens->list[i] ->name);
+        free(tokens->list[i]);
+    }
     free(tokens->list);
     tokens->list = NULL;
     tokens->used = tokens->size = 0;
+    free(tokens);
 }
 
 char *parse(FILE *inputFile, FILE *outputFile) {
@@ -90,11 +97,12 @@ char *parse(FILE *inputFile, FILE *outputFile) {
             command[eol - sol] = '\0';
             for (int i = 0; i < strlen(command); i++) 
                 insertList_char(input, command[i]);
+            free(command);
         }
     }
     inputChar = malloc(input->used + 1);
     memcpy(inputChar, input->list, input->used);
     inputChar[input->used] = '\0';
-
+    freeList_char(input);
     return inputChar;
 }

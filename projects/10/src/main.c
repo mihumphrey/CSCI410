@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
                 input[PATH_MAX - 1] = '\0';
                 char outToken[PATH_MAX + 1] = {0};
                 char outParse[PATH_MAX + 1] = {0};
-                strncpy(outToken, input, strlen(input) - strlen(ext));
-                strncpy(outParse, input, strlen(input) - strlen(ext));
+                strncpy(outToken, input, sizeof(input) - strlen(ext));
+                strncpy(outParse, input, sizeof(input) - strlen(ext));
                 strcat(outToken, "T.xml");
                 strcat(outParse, ".xml");
                 outToken[strlen(input)] = '\0';
@@ -53,8 +53,12 @@ int main(int argc, char *argv[]) {
                 TokenList *tokens = getTokens(out);
                 writeTokens(tokens, tokenOutputFile);
 
+                freeList_Token(tokens);
+                free(out);
             }        
         }
+        closedir(dir);
     }
+    free(filenameCPY);
     return 0;
 }

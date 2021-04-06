@@ -53,17 +53,27 @@ bool isSymbol(char in) {
     }
     return false;
 }
-
 char *getSymbol(char in) {
-    if (in == '<') return "&lt;";
-    else if (in == '>') return "&gt;";
-    else if (in == '&') return "&amp;";
+    char *out;
+    if (in == '<') {
+        out = malloc(5);
+        strcpy(out, "&lt;");//return "&lt;";
+    } else if (in == '>') {
+        out = malloc(5);
+        strcpy(out, "&gt;");
+        out[4] = '\0';
+    }//return "&gt;";
+    else if (in == '&') {
+        out = malloc(6);
+        strcpy(out, "&amp;");
+        out[5] = '\0';
+    }//return "&amp;";
     else {
-        char *out = calloc(1, 2); 
+        out = malloc(2);
         strncpy(out, &in, 1); 
         out[1] = '\0';
-        return out;
     }
+    return out;
 }
 
 bool isKeyword(char *keyword) {

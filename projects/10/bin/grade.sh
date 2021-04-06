@@ -10,7 +10,7 @@ for i in ArrayTest Square ExpressionLessSquare; do
     ./compiler $i >/dev/null
    for j in $(ls $i/*.xml); do
         echo -en "Testing $i/${j##*/} \t"
-        OUT=$(TextComparer.sh $j $i/test/${j##*/})
+        OUT=$(../../tools/TextComparer.sh $j $i/test/${j##*/} 2>/dev/null)
         if [[ $CORRECT = $OUT ]]
         then
             echo -e "${GREEN}PASS${NC}"
