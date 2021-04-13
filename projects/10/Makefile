@@ -21,4 +21,4 @@ grade: compiler
 clean:
 	rm -rfv compiler *.zip
 
-.PHONY: all submission clean grade
+.PHONY: all submission clean grade debug

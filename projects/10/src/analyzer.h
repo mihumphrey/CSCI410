@@ -4,8 +4,6 @@
 #include "grammar.h"
 #include "parser.h"
 
-#define CURR_LETTER tokens->list[tokens->iter]->name[0]
-#define CURR_LETTER_EQ(letter) tokens->list[tokens->iter]->name[0] == letter ? true : false
 #define CURR_WORD tokens->list[tokens->iter]->name
 #define CURR_WORD_EQ(word) STREQUALS(tokens->list[tokens->iter]->name, word)
 
@@ -29,4 +27,8 @@ void analyzeExpressionList(TokenList *tokens, FILE *outputFile, int indent);
 void writeToken(TokenList *tokens, FILE *outputFile, int indent);
 void writeTag(char *tag, FILE *outputFile, int indent);
 void advance(TokenList *tokens);
+bool currentSymbolEQ(TokenList *tokens, char symbolName);
+char currentSymbol(TokenList *tokens);
+char *currentTokenWord(TokenList *tokens);
+bool currentTokenWordEQ(TokenList *tokens, char *name);
 #endif

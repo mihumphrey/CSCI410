@@ -2,7 +2,7 @@
 
 void analyzeClass(TokenList *tokens, FILE *outputFile) {
     int indentLevel = 0;
-    ASSERT(STREQUALS(tokens->list[tokens->iter]->name, "class"), "\"class\" expected as first token")
+    ASSERT(currentTokenWordEQ(tokens, "class"), "\"class\" expected as first token")
     writeTag("<class>", outputFile, indentLevel);
     
     for (int i = 0; i < CLASS_DEC_VARS; i++, advance(tokens)) {
@@ -16,7 +16,7 @@ void analyzeClass(TokenList *tokens, FILE *outputFile) {
     while (isSubroutineOpening(tokens->list[tokens->iter]->name)) {
         analyzeSubroutineDec(tokens, outputFile, indentLevel + 1);
     }    
-    ASSERT(CURR_LETTER_EQ('}'), "'}' expected after to close class dec")
+    ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected after to close class dec")
     writeToken(tokens, outputFile, indentLevel + 1);
     advance(tokens);
     writeTag("</class>", outputFile, indentLevel);
@@ -24,11 +24,11 @@ void analyzeClass(TokenList *tokens, FILE *outputFile) {
 
 void analyzeClassVarDec(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<classVarDec>", outputFile, indent);
-    while (CURR_LETTER != ';') {
+    while (currentSymbol(tokens) != ';') {
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     }
-    ASSERT(CURR_LETTER_EQ(';'), "';' expected after class var declaration")
+    ASSERT(currentSymbolEQ(tokens, ';'), "';' expected after class var declaration")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
     writeTag("</classVarDec>", outputFile, indent);
@@ -41,7 +41,7 @@ void analyzeSubroutineDec(TokenList *tokens, FILE *outputFile, int indent) {
         writeToken(tokens, outputFile, indent + 1);
     }
     analyzeParameterList(tokens, outputFile, indent + 1);
-    ASSERT(CURR_LETTER_EQ(')'), "')' expected at end of parameter list")
+    ASSERT(currentSymbolEQ(tokens, ')'), "')' expected at end of parameter list")
     writeToken(tokens, outputFile, indent + 1); 
     advance(tokens);
     analyzeSubroutineBody(tokens, outputFile, indent + 1);
@@ -51,15 +51,15 @@ void analyzeSubroutineDec(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeSubroutineBody(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<subroutineBody>", outputFile, indent);
-    ASSERT(CURR_LETTER_EQ('{'), "'{' expected after parameter list")
+    ASSERT(currentSymbolEQ(tokens, '{'), "'{' expected after parameter list")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
-    while (CURR_WORD_EQ("var")) {
+    while (currentTokenWordEQ(tokens, "var")) {
         analyzeVarDec(tokens, outputFile, indent + 1);
         advance(tokens);
     }
     analyzeStatements(tokens, outputFile, indent + 1);
-    ASSERT(CURR_LETTER_EQ('}'), "'}' expected to close subroutine")
+    ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected to close subroutine")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
     writeTag("</subroutineBody>", outputFile, indent);
@@ -68,7 +68,7 @@ void analyzeSubroutineBody(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeParameterList(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<parameterList>", outputFile, indent);
-    while (CURR_LETTER != ')') {
+    while (currentSymbol(tokens) != ')') {
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     }
@@ -77,12 +77,12 @@ void analyzeParameterList(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeVarDec(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<varDec>", outputFile, indent);
-    while (CURR_LETTER != ';') {
+    while (currentSymbol(tokens) != ';') {
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     }
 
-    ASSERT(CURR_LETTER_EQ(';'), "';' expected after class var declaration")
+    ASSERT(currentSymbolEQ(tokens, ';'), "';' expected after class var declaration")
     writeToken(tokens, outputFile, indent + 1);
 
     writeTag("</varDec>", outputFile, indent);
@@ -109,26 +109,26 @@ void analyzeStatements(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeDo(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<doStatement>", outputFile, indent);
-    ASSERT(CURR_WORD_EQ("do"), "'do' keyword expected")
+    ASSERT(currentTokenWordEQ(tokens, "do"), "'do' keyword expected")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    while (CURR_LETTER != '(') {
+    while (currentSymbol(tokens) != '(') {
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     }
 
-    ASSERT(CURR_LETTER_EQ('('), "'(' expected at beginning of expression list")
+    ASSERT(currentSymbolEQ(tokens, '('), "'(' expected at beginning of expression list")
     writeToken(tokens, outputFile, indent + 1); 
     advance(tokens);
 
     analyzeExpressionList(tokens, outputFile, indent + 1);
 
-    ASSERT(CURR_LETTER_EQ(')'), "')' expected at end of expression list")
+    ASSERT(currentSymbolEQ(tokens, ')'), "')' expected at end of expression list")
     writeToken(tokens, outputFile, indent + 1); 
     advance(tokens);
 
-    ASSERT(CURR_LETTER_EQ(';'), "';' expected at end of statement")
+    ASSERT(currentSymbolEQ(tokens, ';'), "';' expected at end of statement")
     writeToken(tokens, outputFile, indent + 1); 
     advance(tokens);
 
@@ -138,7 +138,7 @@ void analyzeDo(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<letStatement>", outputFile, indent);
-    ASSERT(CURR_WORD_EQ("let"), "'let' keyword expected")
+    ASSERT(currentTokenWordEQ(tokens, "let"), "'let' keyword expected")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
     writeToken(tokens, outputFile, indent + 1);
@@ -147,16 +147,16 @@ void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
     advance(tokens);
     if (tokens->list[tokens->iter - 1]->name[0] == '[') {
         analyzeExpression(tokens, outputFile, indent + 1);
-        ASSERT(CURR_LETTER_EQ(']'), "']' expected after end of expression")
+        ASSERT(currentSymbolEQ(tokens, ']'), "']' expected after end of expression")
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
-        ASSERT(CURR_LETTER_EQ('='), "'=' expected after end of expression")
+        ASSERT(currentSymbolEQ(tokens, '='), "'=' expected after end of expression")
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     } 
     analyzeExpression(tokens, outputFile, indent + 1);
-    printf("WORD: %s\n", CURR_WORD);
-    ASSERT(CURR_LETTER_EQ(';'), "';' expected after let statement 1")
+    //printf("WORD: %s\n", currentTokenWord(tokens));
+    ASSERT(currentSymbolEQ(tokens, ';'), "';' expected after let statement 1")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
     writeTag("</letStatement>", outputFile, indent);
@@ -165,27 +165,27 @@ void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<whileStatement>", outputFile, indent);
-    ASSERT(CURR_WORD_EQ("while"), "'while' keyword expected")
+    ASSERT(currentTokenWordEQ(tokens, "while"), "'while' keyword expected")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    ASSERT(CURR_LETTER_EQ('('), "'(' expected in while statement")
+    ASSERT(currentSymbolEQ(tokens, '('), "'(' expected in while statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
     analyzeExpression(tokens, outputFile, indent + 1);
 
-    ASSERT(CURR_LETTER_EQ(')'), "')' expected in while statement")
+    ASSERT(currentSymbolEQ(tokens, ')'), "')' expected in while statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    ASSERT(CURR_LETTER_EQ('{'), "'{' expected in while statement")
+    ASSERT(currentSymbolEQ(tokens, '{'), "'{' expected in while statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
     analyzeStatements(tokens, outputFile, indent + 1);
 
-    ASSERT(CURR_LETTER_EQ('}'), "'}' expected in while statement")
+    ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected in while statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
@@ -197,15 +197,15 @@ void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeReturn(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<returnStatement>", outputFile, indent);
-    ASSERT(CURR_WORD_EQ("return"), "'return' keyword expected")
+    ASSERT(currentTokenWordEQ(tokens, "return"), "'return' keyword expected")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    if (CURR_LETTER != ';') {
+    if (currentSymbol(tokens) != ';') {
         analyzeExpression(tokens, outputFile, indent + 1);
     }
     
-    ASSERT(CURR_LETTER_EQ(';'), "';' expected after let statement")
+    ASSERT(currentSymbolEQ(tokens, ';'), "';' expected after let statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
@@ -215,42 +215,42 @@ void analyzeReturn(TokenList *tokens, FILE *outputFile, int indent) {
 
 void analyzeIf(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<ifStatement>", outputFile, indent);
-    ASSERT(CURR_WORD_EQ("if"), "'if' keyword expected")
+    ASSERT(currentTokenWordEQ(tokens, "if"), "'if' keyword expected")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    ASSERT(CURR_LETTER_EQ('('), "'(' expected in if statement")
+    ASSERT(currentSymbolEQ(tokens, '('), "'(' expected in if statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
     analyzeExpression(tokens, outputFile, indent + 1);
 
-    ASSERT(CURR_LETTER_EQ(')'), "')' expected in if statement")
+    ASSERT(currentSymbolEQ(tokens, ')'), "')' expected in if statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    ASSERT(CURR_LETTER_EQ('{'), "'{' expected in if statement")
+    ASSERT(currentSymbolEQ(tokens, '{'), "'{' expected in if statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
     analyzeStatements(tokens, outputFile, indent + 1);
 
-    ASSERT(CURR_LETTER_EQ('}'), "'}' expected in if statement")
+    ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected in if statement")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    if (CURR_WORD_EQ("else")) {
-        ASSERT(CURR_WORD_EQ("else"), "'else' keyword expected")
+    if (currentTokenWordEQ(tokens, "else")) {
+        ASSERT(currentTokenWordEQ(tokens, "else"), "'else' keyword expected")
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
 
-        ASSERT(CURR_LETTER_EQ('{'), "'{' expected in if statement")
+        ASSERT(currentSymbolEQ(tokens, '{'), "'{' expected in if statement")
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
 
         analyzeStatements(tokens, outputFile, indent + 1);
 
-        ASSERT(CURR_LETTER_EQ('}'), "'}' expected in if statement")
+        ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected in if statement")
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     }
@@ -273,12 +273,12 @@ void analyzeExpression(TokenList *tokens, FILE *outputFile, int indent) {
 void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<term>", outputFile, indent);
     writeToken(tokens, outputFile, indent + 1);
-            printf("CURR WORD: %s\n", CURR_WORD);
+           // printf("CURR WORD: %s\n", currentTokenWord(tokens));
     switch(tokens->list[tokens->iter ]->type) {
         case IDENTIFIER : 
             advance(tokens);
             ASSERT(tokens->list[tokens->iter]->type == SYMBOL, "expected symbol")         
-            switch (CURR_LETTER) {
+            switch (currentSymbol(tokens)) {
                 case '.' :
                     writeToken(tokens, outputFile, indent + 1);
                     advance(tokens);
@@ -288,7 +288,7 @@ void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
                     writeToken(tokens, outputFile, indent + 1);
                     advance(tokens);
                     analyzeExpressionList(tokens, outputFile, indent + 1);
-                    ASSERT(CURR_LETTER_EQ(')'), "')' expected after expression list")
+                    ASSERT(currentSymbolEQ(tokens, ')'), "')' expected after expression list")
                     writeToken(tokens, outputFile, indent + 1);
                     advance(tokens);
                     break;
@@ -296,7 +296,7 @@ void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
                     writeToken(tokens, outputFile, indent + 1);
                     advance(tokens);
                     analyzeExpression(tokens, outputFile, indent + 1);
-                    ASSERT(CURR_LETTER_EQ(']'), "']' expected after expression")
+                    ASSERT(currentSymbolEQ(tokens, ']'), "']' expected after expression")
                     writeToken(tokens, outputFile, indent + 1);
                     advance(tokens);
                     break;
@@ -305,17 +305,16 @@ void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
             } 
             break;
         case SYMBOL :
-            if (CURR_LETTER_EQ('(')) {
+            if (currentSymbolEQ(tokens, '(')) {
                 advance(tokens);
                 analyzeExpression(tokens, outputFile, indent + 1);
-                ASSERT(CURR_LETTER_EQ(')'), "')' expected after expression list")
+                ASSERT(currentSymbolEQ(tokens, ')'), "')' expected after expression list")
                 writeToken(tokens, outputFile, indent + 1);
                 advance(tokens);
-            } else if (isUnaryOp(CURR_LETTER)) { 
+            } else if (isUnaryOp(currentSymbol(tokens))) { 
                 advance(tokens);
                 analyzeTerm(tokens, outputFile, indent + 1);
             } 
-            printf("CURR WORD: %s\n", CURR_WORD);
             break;
 
         case KEYWORD :
@@ -339,26 +338,26 @@ void analyzeSubroutineCall(TokenList *tokens, FILE *outputFile, int indent) {
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
     writeToken(tokens, outputFile, indent + 1);
-    if (CURR_LETTER_EQ('.')) {
+    if (currentSymbolEQ(tokens, '.')) {
         advance(tokens);
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
-        ASSERT(CURR_LETTER_EQ('('), "'(' expected after expression list")
+        ASSERT(currentSymbolEQ(tokens, '('), "'(' expected after expression list")
         writeToken(tokens, outputFile, indent + 1);
     }
     advance(tokens);
     analyzeExpressionList(tokens, outputFile, indent + 1);
-    ASSERT(CURR_LETTER_EQ(')'), "')' expected after expression list")
+    ASSERT(currentSymbolEQ(tokens, ')'), "')' expected after expression list")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 }
 
 void analyzeExpressionList(TokenList *tokens, FILE *outputFile, int indent) {
     writeTag("<expressionList>", outputFile, indent);
-    while (CURR_LETTER != ')') {
+    while (currentSymbol(tokens) != ')') {
         analyzeExpression(tokens, outputFile, indent + 1);
 
-        if (CURR_LETTER_EQ(',')) {
+        if (currentSymbolEQ(tokens, ',')) {
             writeToken(tokens, outputFile, indent + 1);
             advance(tokens);
         }
@@ -385,11 +384,18 @@ void advance(TokenList *tokens) {
 }
 
 char currentSymbol(TokenList *tokens) {
-    ASSERT(tokens->list[tokens->iter]->type == SYMBOL, "current token is expected to be SYMBOL but is not")
     return tokens->list[tokens->iter]->name[0];
 }
 
 bool currentSymbolEQ(TokenList *tokens, char symbolName) {
     ASSERT(tokens->list[tokens->iter]->type == SYMBOL, "current token is expected to be SYMBOL but is not")
     return tokens->list[tokens->iter]->name[0] == symbolName;
+}
+
+char *currentTokenWord(TokenList *tokens) {
+    return tokens->list[tokens->iter]->name;
+}
+
+bool currentTokenWordEQ(TokenList *tokens, char *name) {
+    return STREQUALS(tokens->list[tokens->iter]->name, name);
 }
