@@ -17,9 +17,6 @@
 #define STREQUALS(arg1, arg2) strncmp((arg1), (arg2), strlen((arg1))) == 0
 
 #define WRITE(...) fprintf(outputFile, __VA_ARGS__);
-#define WRITE_OPEN_TAG(tag) fprintf(outputFile, "<%s> ", tag);
-#define WRITE_CLOSE_TAG(tag) fprintf(outputFile, " </%s>", tag);
-#define WRITE_TOKEN(tag, value) WRITE_OPEN_TAG(tag) fprintf(outputFile, "%s", value); WRITE_CLOSE_TAG(tag) fprintf(outputFile, "\n");
 
 
 #define MAX_LINE_LENGTH 256

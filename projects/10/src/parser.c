@@ -25,6 +25,7 @@ void initList_Token(TokenList *tokens, size_t initialSize) {
     tokens->list = calloc(1, initialSize * sizeof(Token));
     tokens->used = 0;
     tokens->size = initialSize;
+    tokens->iter = 0;
 }
 
 void insertList_Token(TokenList *tokens, Token *element) {
@@ -37,7 +38,6 @@ void insertList_Token(TokenList *tokens, Token *element) {
 
 void freeList_Token(TokenList *tokens) {
     for (int i = 0; i < tokens->used; i++) {
-        printf("TOKEN: %s\n", tokens->list[i]->name);
         free(tokens->list[i] ->name);
         free(tokens->list[i]);
     }

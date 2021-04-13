@@ -7,6 +7,7 @@ GREEN='\033[0;32m'
 CORRECT="Comparison ended successfully"
 
 for i in ArrayTest Square ExpressionLessSquare; do
+    rm $i/*.xml
     ./compiler $i >/dev/null
    for j in $(ls $i/*.xml); do
         echo -en "Testing $i/${j##*/} \t"
@@ -16,8 +17,9 @@ for i in ArrayTest Square ExpressionLessSquare; do
             echo -e "${GREEN}PASS${NC}"
         else 
             echo -e "${RED}FAIL${NC}"
-            echo -e "\t${RED}$OUT${NC}"
+            echo -e "${RED}$OUT${NC}"
         fi
+
     done
 
 done

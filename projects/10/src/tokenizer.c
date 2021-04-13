@@ -20,7 +20,7 @@ TokenList *getTokens(char *input) {
             char *symbol = getSymbol(input[i]);
             symbolToken = malloc(sizeof(Token));
             symbolToken->name = symbol;
-            symbolToken->type = T_SYMBOL;
+            symbolToken->type = SYMBOL;
             insertSymbol = true;
             inOther = false;
 
@@ -37,7 +37,7 @@ TokenList *getTokens(char *input) {
             strncpy(constName, stringConst->list, stringConst->used );
             constName[stringConst->used] = '\0';
             stringToken->name = constName;
-            stringToken->type = T_STRING_CONST;
+            stringToken->type = STRING_CONST;
             insertString = true;
             inOther = false;
 
@@ -64,17 +64,16 @@ TokenList *getTokens(char *input) {
             otherChar[otherString->used] = '\0';
             if (STREQUALS(otherChar, " ")) {
                 isspace = true;
-                printf("BAHSALKFJALSKDJFL");
             }
 
             if (!isspace) {
                 Token *t = malloc(sizeof(Token));
                 if (isKeyword(otherChar))
-                    t->type = T_KEYWORD;
+                    t->type = KEYWORD;
                 else if (isNum(otherChar))
-                    t->type = T_INT_CONST;
+                    t->type = INT_CONST;
                 else
-                    t->type = T_IDENTIFIER;
+                    t->type = IDENTIFIER;
         
                 t->name = otherChar;
                 insertList_Token(tokens, t);

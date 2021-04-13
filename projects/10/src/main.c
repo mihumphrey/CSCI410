@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "parser.h"
 #include "tokenizer.h"
+#include "analyzer.h"
 
 int main(int argc, char *argv[]) {
     ASSERT(argc >= 2, "Too few arguments -- must contain FILENAME, may contain -v(erbose), -t(okenize), -p(arse) -- ")
@@ -25,15 +26,15 @@ int main(int argc, char *argv[]) {
             memcpy(&input, filename, strlen(filename));
             char *ext = strchr(dp->d_name, '.');
             if (ext != NULL && strncmp(ext, ".jack", strlen(".jack")) == 0) {
-
+                
                 strncpy(input, filename, PATH_MAX - 1);
                 strncat(input, "/", 2);
                 strncat(input, dp->d_name, PATH_MAX - 1);
                 input[PATH_MAX - 1] = '\0';
                 char outToken[PATH_MAX + 1] = {0};
                 char outParse[PATH_MAX + 1] = {0};
-                strncpy(outToken, input, sizeof(input) - strlen(ext));
-                strncpy(outParse, input, sizeof(input) - strlen(ext));
+                memcpy(outToken, input, strlen(input) - strlen(ext));
+                memcpy(outParse, input, strlen(input) - strlen(ext));
                 strcat(outToken, "T.xml");
                 strcat(outParse, ".xml");
                 outToken[strlen(input)] = '\0';
@@ -49,10 +50,14 @@ int main(int argc, char *argv[]) {
                 ASSERT(inputFile, "cannot open input file to read")
   
                 char *out = parse(inputFile, tokenOutputFile);
-                printf("OUT: %s\n\n\n", out);
                 TokenList *tokens = getTokens(out);
                 writeTokens(tokens, tokenOutputFile);
 
+                analyzeClass(tokens, parseOutputFile);
+
+                fclose(inputFile);
+                fclose(tokenOutputFile);
+                fclose(parseOutputFile);
                 freeList_Token(tokens);
                 free(out);
             }        

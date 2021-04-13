@@ -7,13 +7,17 @@
 
 #define SYMBOL_LIST_LEN 19
 
-typedef enum __TOKEN_TYPE__ {
-    T_KEYWORD, T_SYMBOL, T_IDENTIFIER, T_INT_CONST, T_STRING_CONST
-} TokenType;
+#define CLASS_VAR_OPENINGS_LEN 2
+#define SUBROUTINE_OPENINGS_LEN 3
+#define STATEMENT_OPENINGS_LEN 5
+#define OPERATORS_LEN 9
+#define UNARY_OPS_LEN 2
+#define CLASS_DEC_VARS 3
+#define SUBROUTINE_DEC_TOKENS 4
 
-typedef enum __ANALYZER_TYPE__ {
-    A_CLASS, A_KEYWORD, A_IDENTIFIER, A_SYMBOL, A_INT_CONST, A_STRING_CONST, A_SUBROUTINE_DEC, A_SUBROUTINE_BODY, A_PARAMETER_LIST, A_VAR_DEC, A_LET_STATEMENT, A_EXPRESSION, A_EXPRESSION_LIST, A_TERM, A_WHILE_STATEMENT, A_DO_STATEMENT, A_IF_STATEMENT, A_RETURN_STATEMENT
-} AnalyzerType;
+typedef enum __TOKEN_TYPE__ {
+    KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST
+} TokenType;
 
 typedef struct __TOKEN__ {
     char *name;
@@ -29,6 +33,7 @@ typedef struct __TOKEN_LIST__ {
     Token **list;
     size_t used;
     size_t size;
+    size_t iter;
 } TokenList;
 
 
@@ -36,8 +41,17 @@ typedef struct __TOKEN_LIST__ {
 
 const char *KEYWORD_LIST[KEYWORD_LIST_LEN];
 const char SYMBOL_LIST[SYMBOL_LIST_LEN];
+const char *CLASS_VAR_OPENINGS[CLASS_VAR_OPENINGS_LEN];
+const char *SUBROUTINE_OPENINGS[SUBROUTINE_OPENINGS_LEN];
+const char *STATEMENT_OPENINGS[STATEMENT_OPENINGS_LEN];
+const char *OPERATORS[OPERATORS_LEN];
+const char UNARY_OPS[UNARY_OPS_LEN];
 
-
+bool isClassVarOpening(const char *keyword);
+bool isSubroutineOpening(const char *keyword);
+bool isStatementOpening(const char *keyword);
+bool isOperator(const char *keyword);
+bool isUnaryOp(const char op);
 bool isSymbol(char in);
 char *getSymbol(char in);
 bool isKeyword(char *keyword);
