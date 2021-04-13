@@ -3,15 +3,30 @@
 #include "tokenizer.h"
 #include "analyzer.h"
 
+bool verbose = false;
+
+//********************************************************************************************************************//
+//* Function main                                                                                                    *//
+//*     Input:                                                                                                       *//
+//*         argc: int -- number of inputs + 1, argv: char** -- input flags                                           *//
+//*     Parses input, and creates output files + calls all other functions                                           *//
+//*     Returns:                                                                                                     *//
+//*         int -- exit status of program                                                                            *//
+//********************************************************************************************************************//
 int main(int argc, char *argv[]) {
     ASSERT(argc >= 2, "Too few arguments -- must contain FILENAME, may contain -v(erbose), -t(okenize), -p(arse) -- ")
+
+    if (argc > 2 && STREQUALS(argv[2], "-v")) verbose = true;    
+
     char *filename = argv[1];
     ASSERT(filename, "Input filename not found")
 
+    if (verbose)
+        fprintf(stderr, "* Compiling: %s\n", filename);
     struct stat path_stat;
     stat(filename, &path_stat);
     FILE *tokenOutputFile = NULL;
-    FILE *parseOutputFile = NULL;
+    FILE *analyzeOutputFile = NULL;
     char *filenameCPY = malloc(strlen(filename) + 1);
     memcpy(filenameCPY, filename, strlen(filename));
     filenameCPY[strlen(filename)] = '\0';
@@ -31,33 +46,43 @@ int main(int argc, char *argv[]) {
                 strncat(input, "/", 2);
                 strncat(input, dp->d_name, PATH_MAX - 1);
                 input[PATH_MAX - 1] = '\0';
+        
+                if (verbose)
+                    fprintf(stderr, "\t* Compiling File: %s\n", input);
                 char outToken[PATH_MAX + 1] = {0};
-                char outParse[PATH_MAX + 1] = {0};
+                char outAnalyze[PATH_MAX + 1] = {0};
                 memcpy(outToken, input, strlen(input) - strlen(ext));
-                memcpy(outParse, input, strlen(input) - strlen(ext));
+                memcpy(outAnalyze, input, strlen(input) - strlen(ext));
                 strcat(outToken, "T.xml");
-                strcat(outParse, ".xml");
+                strcat(outAnalyze, ".xml");
                 outToken[strlen(input)] = '\0';
-                outParse[strlen(input)] = '\0';
+                outAnalyze[strlen(input)] = '\0';
 
+                if (verbose)
+                    fprintf(stderr, "\t* Tokenizer output file: %s\n", outToken);
+                if (verbose)
+                    fprintf(stderr, "\t* Analyzer output file: %s\n", outAnalyze);
                 tokenOutputFile = fopen(outToken, "w");
-                parseOutputFile = fopen(outParse, "w");
+                analyzeOutputFile = fopen(outAnalyze, "w");
     
                 ASSERT(tokenOutputFile, "cannot open token output file to write")
-                ASSERT(parseOutputFile, "cannot open parse output file to write")
+                ASSERT(analyzeOutputFile, "cannot open analyze output file to write")
 
                 FILE *inputFile = fopen(input, "r");
                 ASSERT(inputFile, "cannot open input file to read")
   
-                char *out = parse(inputFile, tokenOutputFile);
+                char *out = parse(inputFile);
                 TokenList *tokens = getTokens(out);
                 writeTokens(tokens, tokenOutputFile);
 
-                analyzeClass(tokens, parseOutputFile);
+                analyzeClass(tokens, analyzeOutputFile);
+
+                if (verbose)
+                    fprintf(stderr, "* Freeing all data used\n");
 
                 fclose(inputFile);
                 fclose(tokenOutputFile);
-                fclose(parseOutputFile);
+                fclose(analyzeOutputFile);
                 freeList_Token(tokens);
                 free(out);
             }        

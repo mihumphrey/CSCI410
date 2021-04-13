@@ -1,0 +1,13 @@
+- Michael Humphrey
+- I did not receive help on this assignment
+- This assignment took ~8hrs to complete
+- I found that it was interesting how a recursive algorithm can be implemented with little to no recursion
+
+ HOW TO RUN:
+ 
+ My program can be compiled by simply running 'make', then ran with the executable 'compiler'
+     To run it in normal mode, simply type ./compiler <Source Directory>, e.g. ./compiler Square/
+     To run it in verbose mode, simply add '-v' to the end, e.g. ./compiler Square -v
+         This gives extra output as to how my program is working
+     To run all of the files given, simply type 'make grade'
+         **NOTE** This runs my compiler on all given files, then runs the TextComparator on the given .xml files and ensures that they pass.

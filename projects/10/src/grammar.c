@@ -1,5 +1,5 @@
 #include "grammar.h"
-
+// Array of all keywrods
 const char *KEYWORD_LIST[KEYWORD_LIST_LEN] = {
     "class",
     "method",
@@ -24,6 +24,7 @@ const char *KEYWORD_LIST[KEYWORD_LIST_LEN] = {
     "this",
 };
 
+// Array of all symbols
 const char SYMBOL_LIST[SYMBOL_LIST_LEN] = {
     '{',
     '}',
@@ -46,6 +47,7 @@ const char SYMBOL_LIST[SYMBOL_LIST_LEN] = {
     '~',
 };
 
+// Array of all Statement Openings
 const char *STATEMENT_OPENINGS[STATEMENT_OPENINGS_LEN] = {
     "if",
     "let",
@@ -54,17 +56,20 @@ const char *STATEMENT_OPENINGS[STATEMENT_OPENINGS_LEN] = {
     "return",
 };
 
+// Array of all class var openings
 const char *CLASS_VAR_OPENINGS[CLASS_VAR_OPENINGS_LEN] = {
     "static",
     "field",
 };
 
+// Array of all subroutine openings
 const char *SUBROUTINE_OPENINGS[SUBROUTINE_OPENINGS_LEN] = {
     "constructor",
     "function", 
     "method",  
 };
 
+// Array of all operators
 const char *OPERATORS[OPERATORS_LEN] = {
     "+",
     "-",
@@ -77,6 +82,7 @@ const char *OPERATORS[OPERATORS_LEN] = {
     "=",
 };
 
+// Array of all unary ops
 const char UNARY_OPS[UNARY_OPS_LEN] = {
     '-',
     '~',
@@ -139,13 +145,11 @@ char *getSymbol(char in) {
         out = malloc(5);
         strcpy(out, "&gt;");
         out[4] = '\0';
-    }//return "&gt;";
-    else if (in == '&') {
+    } else if (in == '&') {
         out = malloc(6);
         strcpy(out, "&amp;");
         out[5] = '\0';
-    }//return "&amp;";
-    else {
+    } else {
         out = malloc(2);
         strncpy(out, &in, 1); 
         out[1] = '\0';

@@ -1,57 +1,20 @@
 #include "parser.h"
 
-void initList_char(CharList *tokens, size_t initialSize) {
-    tokens->list = malloc(initialSize);
-    tokens->used = 0;
-    tokens->size = initialSize;
-}
+extern bool verbose;
 
-void insertList_char(CharList *tokens, char element) {
-    if (tokens->used == tokens->size) {
-        tokens->size *= 2;
-        tokens->list = realloc(tokens->list, tokens->size);
-    }
-    tokens->list[tokens->used++] = element;
-}
-
-void freeList_char(CharList *tokens) {
-    free(tokens->list);
-    tokens->list = NULL;
-    tokens->used = tokens->size = 0;
-    free(tokens);
-}
-
-void initList_Token(TokenList *tokens, size_t initialSize) {
-    tokens->list = calloc(1, initialSize * sizeof(Token));
-    tokens->used = 0;
-    tokens->size = initialSize;
-    tokens->iter = 0;
-}
-
-void insertList_Token(TokenList *tokens, Token *element) {
-    if (tokens->used == tokens->size) {
-        tokens->size *= 2;
-        tokens->list = realloc(tokens->list, tokens->size * sizeof(Token));
-    }
-    tokens->list[tokens->used++] = element;
-}
-
-void freeList_Token(TokenList *tokens) {
-    for (int i = 0; i < tokens->used; i++) {
-        free(tokens->list[i] ->name);
-        free(tokens->list[i]);
-    }
-    free(tokens->list);
-    tokens->list = NULL;
-    tokens->used = tokens->size = 0;
-    free(tokens);
-}
-
-char *parse(FILE *inputFile, FILE *outputFile) {
+//********************************************************************************************************************//
+//* Function parse                                                                                                   *//
+//*     Input:                                                                                                       *//
+//*         inputFile: FILE * -- file to read from                                                                   *//
+//*     Parses all data from file into flat char *, while stripping comments and whitespace                          *//
+//*     Returns:                                                                                                     *//
+//*         char * -- flatt array of class                                                                           *//
+//********************************************************************************************************************//
+char *parse(FILE *inputFile) {
+    if (verbose)
+        fprintf(stderr, "\t * Beginning parsing\n");
     bool isInComment = false;
     ASSERT(inputFile, "input file not open for reading")
-    ASSERT(outputFile, "output file not open for writing")
-
         
     char line[MAX_LINE_LENGTH];
     CharList *input = malloc(sizeof(CharList));
@@ -97,6 +60,8 @@ char *parse(FILE *inputFile, FILE *outputFile) {
             command[eol - sol] = '\0';
             for (int i = 0; i < strlen(command); i++) 
                 insertList_char(input, command[i]);
+            if (verbose)
+                fprintf(stderr, "\t\t\t * Found Command: %s\n", command);
             free(command);
         }
     }
@@ -104,5 +69,7 @@ char *parse(FILE *inputFile, FILE *outputFile) {
     memcpy(inputChar, input->list, input->used);
     inputChar[input->used] = '\0';
     freeList_char(input);
+    if (verbose)
+        fprintf(stderr, "\t * Done parsing\n");
     return inputChar;
 }

@@ -11,7 +11,7 @@ debug: $(SRCFILES) $(HFILES)
 
 submission: compiler
 	make clean >/dev/null
-	zip -r michaelhumphrey.zip src bin ProgramFlow FunctionCalls Makefile README
+	zip -r michaelhumphrey.zip src bin Square ExpressionLessSquare ArrayTest Makefile README
 
 grade: compiler
 	make clean >/dev/null
