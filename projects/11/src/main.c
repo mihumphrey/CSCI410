@@ -1,7 +1,7 @@
 #include "includes.h"
 #include "parser.h"
 #include "tokenizer.h"
-#include "analyzer.h"
+#include "compiler.h"
 
 bool verbose = false;
 
@@ -25,8 +25,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "* Compiling: %s\n", filename);
     struct stat path_stat;
     stat(filename, &path_stat);
-    FILE *tokenOutputFile = NULL;
-    FILE *analyzeOutputFile = NULL;
+    FILE *compileOutputFile = NULL;
     char *filenameCPY = malloc(strlen(filename) + 1);
     memcpy(filenameCPY, filename, strlen(filename));
     filenameCPY[strlen(filename)] = '\0';
@@ -50,39 +49,33 @@ int main(int argc, char *argv[]) {
                 if (verbose)
                     fprintf(stderr, "\t* Compiling File: %s\n", input);
                 char outToken[PATH_MAX + 1] = {0};
-                char outAnalyze[PATH_MAX + 1] = {0};
+                char outCompile[PATH_MAX + 1] = {0};
                 memcpy(outToken, input, strlen(input) - strlen(ext));
-                memcpy(outAnalyze, input, strlen(input) - strlen(ext));
+                memcpy(outCompile, input, strlen(input) - strlen(ext));
                 strcat(outToken, "T.xml");
-                strcat(outAnalyze, ".xml");
+                strcat(outCompile, ".xml");
                 outToken[strlen(input)] = '\0';
-                outAnalyze[strlen(input)] = '\0';
+                outCompile[strlen(input)] = '\0';
 
                 if (verbose)
-                    fprintf(stderr, "\t* Tokenizer output file: %s\n", outToken);
-                if (verbose)
-                    fprintf(stderr, "\t* Analyzer output file: %s\n", outAnalyze);
-                tokenOutputFile = fopen(outToken, "w");
-                analyzeOutputFile = fopen(outAnalyze, "w");
+                    fprintf(stderr, "\t* Compiler output file: %s\n", outCompile);
+                compileOutputFile = fopen(outCompile, "w");
     
-                ASSERT(tokenOutputFile, "cannot open token output file to write")
-                ASSERT(analyzeOutputFile, "cannot open analyze output file to write")
+                ASSERT(compileOutputFile, "cannot open compile output file to write")
 
                 FILE *inputFile = fopen(input, "r");
                 ASSERT(inputFile, "cannot open input file to read")
   
                 char *out = parse(inputFile);
                 TokenList *tokens = getTokens(out);
-                writeTokens(tokens, tokenOutputFile);
 
-                analyzeClass(tokens, analyzeOutputFile);
+                compileClass(tokens, compileOutputFile);
 
                 if (verbose)
                     fprintf(stderr, "* Freeing all data used\n");
 
                 fclose(inputFile);
-                fclose(tokenOutputFile);
-                fclose(analyzeOutputFile);
+                fclose(compileOutputFile);
                 freeList_Token(tokens);
                 free(out);
             }        

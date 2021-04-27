@@ -6,7 +6,6 @@
 #include "parser.h"
 
 TokenList *getTokens(char *input);
-void writeTokens(TokenList *tokens, FILE *outputFile);
 
 void initList_char(CharList *tokens, size_t initialSize);
 void insertList_char(CharList *tokens, char element);

@@ -1,9 +1,9 @@
-#include "analyzer.h"
+#include "compiler.h"
 
 extern bool verbose;
 
 //********************************************************************************************************************//
-//* Function analyzeClass                                                                                            *//
+//* Function compileClass                                                                                            *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                     *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -11,7 +11,7 @@ extern bool verbose;
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeClass(TokenList *tokens, FILE *outputFile) {
+void compileClass(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t* Beginning Analyzing\n");
     int indentLevel = 0;
@@ -22,12 +22,12 @@ void analyzeClass(TokenList *tokens, FILE *outputFile) {
         writeToken(tokens, outputFile, indentLevel + 1);
     }
 
-    while (isClassVarOpening(tokens->list[tokens->iter]->name)) {
-        analyzeClassVarDec(tokens, outputFile, indentLevel + 1);
+    while (isClassVarOpening(compiler->tokens->list[compiler->tokens->iter]->name)) {
+        compileClassVarDec(tokens, outputFile, indentLevel + 1);
     }
 
-    while (isSubroutineOpening(tokens->list[tokens->iter]->name)) {
-        analyzeSubroutineDec(tokens, outputFile, indentLevel + 1);
+    while (isSubroutineOpening(compiler->tokens->list[compiler->tokens->iter]->name)) {
+        compileSubroutineDec(tokens, outputFile, indentLevel + 1);
     }    
     ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected after to close class dec")
     writeToken(tokens, outputFile, indentLevel + 1);
@@ -38,7 +38,7 @@ void analyzeClass(TokenList *tokens, FILE *outputFile) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeClassVarDec                                                                                      *//
+//* Function compileClassVarDec                                                                                      *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                     *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -47,7 +47,7 @@ void analyzeClass(TokenList *tokens, FILE *outputFile) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeClassVarDec(TokenList *tokens, FILE *outputFile, int indent) {
+void compileClassVarDec(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Class Var Declaration\n");
     writeTag("<classVarDec>", outputFile, indent);
@@ -65,7 +65,7 @@ void analyzeClassVarDec(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeSubroutineDec                                                                                    *//
+//* Function compileSubroutineDec                                                                                    *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -74,18 +74,18 @@ void analyzeClassVarDec(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeSubroutineDec(TokenList *tokens, FILE *outputFile, int indent) {
+void compileSubroutineDec(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Subroutine Declaration\n");
     writeTag("<subroutineDec>", outputFile, indent);
     for (int i = 0; i < SUBROUTINE_DEC_TOKENS; i++, advance(tokens)) {
         writeToken(tokens, outputFile, indent + 1);
     }
-    analyzeParameterList(tokens, outputFile, indent + 1);
+    compileParameterList(tokens, outputFile, indent + 1);
     ASSERT(currentSymbolEQ(tokens, ')'), "')' expected at end of parameter list")
     writeToken(tokens, outputFile, indent + 1); 
     advance(tokens);
-    analyzeSubroutineBody(tokens, outputFile, indent + 1);
+    compileSubroutineBody(tokens, outputFile, indent + 1);
     writeTag("</subroutineDec>", outputFile, indent);
 
     if (verbose)
@@ -93,7 +93,7 @@ void analyzeSubroutineDec(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeSubroutineBody                                                                                   *//
+//* Function compileSubroutineBody                                                                                   *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -102,7 +102,7 @@ void analyzeSubroutineDec(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeSubroutineBody(TokenList *tokens, FILE *outputFile, int indent) {
+void compileSubroutineBody(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Subroutine Body\n");
     writeTag("<subroutineBody>", outputFile, indent);
@@ -110,10 +110,10 @@ void analyzeSubroutineBody(TokenList *tokens, FILE *outputFile, int indent) {
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
     while (currentTokenWordEQ(tokens, "var")) {
-        analyzeVarDec(tokens, outputFile, indent + 1);
+        compileVarDec(tokens, outputFile, indent + 1);
         advance(tokens);
     }
-    analyzeStatements(tokens, outputFile, indent + 1);
+    compileStatements(tokens, outputFile, indent + 1);
     ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected to close subroutine")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
@@ -124,7 +124,7 @@ void analyzeSubroutineBody(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeParameterList                                                                                    *//
+//* Function compileParameterList                                                                                    *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -133,7 +133,7 @@ void analyzeSubroutineBody(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeParameterList(TokenList *tokens, FILE *outputFile, int indent) {
+void compileParameterList(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Parameter List\n");
     writeTag("<parameterList>", outputFile, indent);
@@ -147,7 +147,7 @@ void analyzeParameterList(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeVarDec                                                                                           *//
+//* Function compileVarDec                                                                                           *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -156,7 +156,7 @@ void analyzeParameterList(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeVarDec(TokenList *tokens, FILE *outputFile, int indent) {
+void compileVarDec(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Var Declaration\n");
     writeTag("<varDec>", outputFile, indent);
@@ -175,7 +175,7 @@ void analyzeVarDec(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeStatements                                                                                       *//
+//* Function compileStatements                                                                                       *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -184,21 +184,21 @@ void analyzeVarDec(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeStatements(TokenList *tokens, FILE *outputFile, int indent) {
+void compileStatements(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Statements\n");
     writeTag("<statements>", outputFile, indent);
-    while (isStatementOpening(tokens->list[tokens->iter]->name)) {
-        if (STREQUALS(tokens->list[tokens->iter]->name, "do"))
-            analyzeDo(tokens, outputFile, indent + 1);
-        else if (STREQUALS(tokens->list[tokens->iter]->name, "if"))
-            analyzeIf(tokens, outputFile, indent + 1);
-        else if (STREQUALS(tokens->list[tokens->iter]->name, "let"))
-            analyzeLet(tokens, outputFile, indent + 1);
-        else if (STREQUALS(tokens->list[tokens->iter]->name, "return"))
-            analyzeReturn(tokens, outputFile, indent + 1);
-        else if (STREQUALS(tokens->list[tokens->iter]->name, "while"))
-            analyzeWhile(tokens, outputFile, indent + 1);
+    while (isStatementOpening(compiler->tokens->list[compiler->tokens->iter]->name)) {
+        if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "do"))
+            compileDo(tokens, outputFile, indent + 1);
+        else if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "if"))
+            compileIf(tokens, outputFile, indent + 1);
+        else if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "let"))
+            compileLet(tokens, outputFile, indent + 1);
+        else if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "return"))
+            compileReturn(tokens, outputFile, indent + 1);
+        else if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "while"))
+            compileWhile(tokens, outputFile, indent + 1);
     }
     writeTag("</statements>", outputFile, indent);
 
@@ -207,7 +207,7 @@ void analyzeStatements(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeDo                                                                                               *//
+//* Function compileDo                                                                                               *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -216,7 +216,7 @@ void analyzeStatements(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeDo(TokenList *tokens, FILE *outputFile, int indent) {
+void compileDo(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Do Statement\n");
     writeTag("<doStatement>", outputFile, indent);
@@ -233,7 +233,7 @@ void analyzeDo(TokenList *tokens, FILE *outputFile, int indent) {
     writeToken(tokens, outputFile, indent + 1); 
     advance(tokens);
 
-    analyzeExpressionList(tokens, outputFile, indent + 1);
+    compileExpressionList(tokens, outputFile, indent + 1);
 
     ASSERT(currentSymbolEQ(tokens, ')'), "')' expected at end of expression list")
     writeToken(tokens, outputFile, indent + 1); 
@@ -250,7 +250,7 @@ void analyzeDo(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeLet                                                                                              *//
+//* Function compileLet                                                                                              *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -259,7 +259,7 @@ void analyzeDo(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
+void compileLet(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Let Statement\n");
     writeTag("<letStatement>", outputFile, indent);
@@ -270,8 +270,8 @@ void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
     advance(tokens);
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
-    if (tokens->list[tokens->iter - 1]->name[0] == '[') {
-        analyzeExpression(tokens, outputFile, indent + 1);
+    if (compiler->tokens->list[compiler->tokens->iter - 1]->name[0] == '[') {
+        compileExpression(tokens, outputFile, indent + 1);
         ASSERT(currentSymbolEQ(tokens, ']'), "']' expected after end of expression")
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
@@ -279,7 +279,7 @@ void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
         writeToken(tokens, outputFile, indent + 1);
         advance(tokens);
     } 
-    analyzeExpression(tokens, outputFile, indent + 1);
+    compileExpression(tokens, outputFile, indent + 1);
     ASSERT(currentSymbolEQ(tokens, ';'), "';' expected after let statement 1")
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
@@ -290,7 +290,7 @@ void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeWhile                                                                                            *//
+//* Function compileWhile                                                                                            *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -299,7 +299,7 @@ void analyzeLet(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
+void compileWhile(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing While Statement\n");
     writeTag("<whileStatement>", outputFile, indent);
@@ -311,7 +311,7 @@ void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    analyzeExpression(tokens, outputFile, indent + 1);
+    compileExpression(tokens, outputFile, indent + 1);
 
     ASSERT(currentSymbolEQ(tokens, ')'), "')' expected in while statement")
     writeToken(tokens, outputFile, indent + 1);
@@ -321,7 +321,7 @@ void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
     writeToken(tokens, outputFile, indent + 1);
     advance(tokens);
 
-    analyzeStatements(tokens, outputFile, indent + 1);
+    compileStatements(tokens, outputFile, indent + 1);
 
     ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected in while statement")
     writeToken(tokens, outputFile, indent + 1);
@@ -333,7 +333,7 @@ void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
 }
 
 //********************************************************************************************************************//
-//* Function analyzeReturn                                                                                           *//
+//* Function compileReturn                                                                                           *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -342,30 +342,30 @@ void analyzeWhile(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeReturn(TokenList *tokens, FILE *outputFile, int indent) {
+void compileReturn(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Return Statement\n");
-    writeTag("<returnStatement>", outputFile, indent);
+    //tag
     ASSERT(currentTokenWordEQ(tokens, "return"), "'return' keyword expected")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
     if (currentSymbol(tokens) != ';') {
-        analyzeExpression(tokens, outputFile, indent + 1);
+        compileExpression(tokens, outputFile, indent + 1);
     }
     
     ASSERT(currentSymbolEQ(tokens, ';'), "';' expected after let statement")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
-    writeTag("</returnStatement>", outputFile, indent);
+    //tag
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Analyzing Return Statement\n");
 }
 
 //********************************************************************************************************************//
-//* Function analyzeIf                                                                                               *//
+//* Function compileIf                                                                                               *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -374,57 +374,57 @@ void analyzeReturn(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeIf(TokenList *tokens, FILE *outputFile, int indent) {
+void compileIf(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing If Statement\n");
-    writeTag("<ifStatement>", outputFile, indent);
+    //tag
     ASSERT(currentTokenWordEQ(tokens, "if"), "'if' keyword expected")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
     ASSERT(currentSymbolEQ(tokens, '('), "'(' expected in if statement")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
-    analyzeExpression(tokens, outputFile, indent + 1);
+    compileExpression(tokens, outputFile, indent + 1);
 
     ASSERT(currentSymbolEQ(tokens, ')'), "')' expected in if statement")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
     ASSERT(currentSymbolEQ(tokens, '{'), "'{' expected in if statement")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
-    analyzeStatements(tokens, outputFile, indent + 1);
+    compileStatements(tokens, outputFile, indent + 1);
 
     ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected in if statement")
-    writeToken(tokens, outputFile, indent + 1);
+    //token
     advance(tokens);
 
     if (currentTokenWordEQ(tokens, "else")) {
         ASSERT(currentTokenWordEQ(tokens, "else"), "'else' keyword expected")
-        writeToken(tokens, outputFile, indent + 1);
+    //token
         advance(tokens);
 
         ASSERT(currentSymbolEQ(tokens, '{'), "'{' expected in if statement")
-        writeToken(tokens, outputFile, indent + 1);
+    //token
         advance(tokens);
 
-        analyzeStatements(tokens, outputFile, indent + 1);
+        compileStatements(tokens, outputFile, indent + 1);
 
         ASSERT(currentSymbolEQ(tokens, '}'), "'}' expected in if statement")
-        writeToken(tokens, outputFile, indent + 1);
+    //token
         advance(tokens);
     }
-    writeTag("</ifStatement>", outputFile, indent);
+    //tag
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Analyzing If Statement\n");
 }
 
 //********************************************************************************************************************//
-//* Function analyzeExpression                                                                                       *//
+//* Function compileExpression                                                                                       *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -433,24 +433,24 @@ void analyzeIf(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeExpression(TokenList *tokens, FILE *outputFile, int indent) {
+void compileExpression(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Expression\n");
-    writeTag("<expression>", outputFile, indent);
-    analyzeTerm(tokens, outputFile, indent + 1);
+    //tag
+    compileTerm(tokens, outputFile, indent + 1);
     while (isOperator(CURR_WORD)) {
-        writeToken(tokens, outputFile, indent + 1);
+    //token
         advance(tokens);
-        analyzeTerm(tokens, outputFile, indent);
+        compileTerm(tokens, outputFile, indent);
     }        
-    writeTag("</expression>", outputFile, indent);
+    //tag
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Analyzing Expression\n");
 }
 
 //********************************************************************************************************************//
-//* Function analyzeTerm                                                                                             *//
+//* Function compileTerm                                                                                             *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -459,35 +459,35 @@ void analyzeExpression(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
+void compileTerm(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Terminal\n");
-    writeTag("<term>", outputFile, indent);
-    writeToken(tokens, outputFile, indent + 1);
-    switch(tokens->list[tokens->iter ]->type) {
+    //tag
+    //token
+    switch(compiler->tokens->list[compiler->tokens->iter ]->type) {
         case IDENTIFIER : 
             advance(tokens);
-            ASSERT(tokens->list[tokens->iter]->type == SYMBOL, "expected symbol")         
+            ASSERT(compiler->tokens->list[compiler->tokens->iter]->type == SYMBOL, "expected symbol")         
             switch (currentSymbol(tokens)) {
                 case '.' :
-                    writeToken(tokens, outputFile, indent + 1);
+    //token
                     advance(tokens);
-                    analyzeSubroutineCall(tokens, outputFile, indent);
+                    compileSubroutineCall(tokens, outputFile, indent);
                     break;
                 case '(' :
-                    writeToken(tokens, outputFile, indent + 1);
+    //token
                     advance(tokens);
-                    analyzeExpressionList(tokens, outputFile, indent + 1);
+                    compileExpressionList(tokens, outputFile, indent + 1);
                     ASSERT(currentSymbolEQ(tokens, ')'), "')' expected after expression list")
-                    writeToken(tokens, outputFile, indent + 1);
+    //token
                     advance(tokens);
                     break;
                 case '[' :
-                    writeToken(tokens, outputFile, indent + 1);
+    //token
                     advance(tokens);
-                    analyzeExpression(tokens, outputFile, indent + 1);
+                    compileExpression(tokens, outputFile, indent + 1);
                     ASSERT(currentSymbolEQ(tokens, ']'), "']' expected after expression")
-                    writeToken(tokens, outputFile, indent + 1);
+    //token
                     advance(tokens);
                     break;
                 default :
@@ -497,13 +497,13 @@ void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
         case SYMBOL :
             if (currentSymbolEQ(tokens, '(')) {
                 advance(tokens);
-                analyzeExpression(tokens, outputFile, indent + 1);
+                compileExpression(tokens, outputFile, indent + 1);
                 ASSERT(currentSymbolEQ(tokens, ')'), "')' expected after expression list")
-                writeToken(tokens, outputFile, indent + 1);
+    //token
                 advance(tokens);
             } else if (isUnaryOp(currentSymbol(tokens))) { 
                 advance(tokens);
-                analyzeTerm(tokens, outputFile, indent + 1);
+                compileTerm(tokens, outputFile, indent + 1);
             } 
             break;
 
@@ -521,13 +521,13 @@ void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
         default :
             ASSERT(0 == 1, "Invalid terminal received")        
     }
-    writeTag("</term>", outputFile, indent);
+    //tag
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Analyzing Terminal\n");
 }
 
 //********************************************************************************************************************//
-//* Function analyzesubroutineCall                                                                                   *//
+//* Function compilesubroutineCall                                                                                   *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -536,30 +536,30 @@ void analyzeTerm(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeSubroutineCall(TokenList *tokens, FILE *outputFile, int indent) {
+void compileSubroutineCall(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Subroutine Call\n");
-    writeToken(tokens, outputFile, indent + 1);
+    // token
     advance(tokens);
-    writeToken(tokens, outputFile, indent + 1);
+    // token
     if (currentSymbolEQ(tokens, '.')) {
         advance(tokens);
-        writeToken(tokens, outputFile, indent + 1);
+    // token
         advance(tokens);
         ASSERT(currentSymbolEQ(tokens, '('), "'(' expected after expression list")
-        writeToken(tokens, outputFile, indent + 1);
+    // token
     }
     advance(tokens);
-    analyzeExpressionList(tokens, outputFile, indent + 1);
+    compileExpressionList(tokens, outputFile, indent + 1);
     ASSERT(currentSymbolEQ(tokens, ')'), "')' expected after expression list")
-    writeToken(tokens, outputFile, indent + 1);
+    // token
     advance(tokens);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Analyzing Subroutine Call\n");
 }
 
 //********************************************************************************************************************//
-//* Function analyzeExpressionList                                                                                   *//
+//* Function compileExpressionList                                                                                   *//
 //*     Input:                                                                                                       *//
 //*         tokens: TokenList * -- List of tokens                                                                    *//
 //*         outputFile: FILE * -- file to write to                                                                   *//
@@ -568,55 +568,21 @@ void analyzeSubroutineCall(TokenList *tokens, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void analyzeExpressionList(TokenList *tokens, FILE *outputFile, int indent) {
+void compileExpressionList(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Analyzing Expression List\n");
-    writeTag("<expressionList>", outputFile, indent);
+    //tag
     while (currentSymbol(tokens) != ')') {
-        analyzeExpression(tokens, outputFile, indent + 1);
+        compileExpression(tokens, outputFile, indent + 1);
 
         if (currentSymbolEQ(tokens, ',')) {
-            writeToken(tokens, outputFile, indent + 1);
+            //token
             advance(tokens);
         }
     }
-    writeTag("</expressionList>", outputFile, indent);
+    //tag
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Analyzing Expression List\n");
-}
-
-//********************************************************************************************************************//
-//* Helper Function writeToken                                                                                       *//
-//*     Input:                                                                                                       *//
-//*         tokens: TokenList * -- List of tokens                                                                    *//
-//*         outputFile: FILE * -- file to write to                                                                   *//
-//*         indent: int -- amount to indent xml to                                                                   *//
-//*     Converts the token into xml format, and writes it                                                            *//
-//*     Returns:                                                                                                     *//
-//*         void                                                                                                     *//
-//********************************************************************************************************************//
-void writeToken(TokenList *tokens, FILE *outputFile, int indent) {
-    char *name = tokens->list[tokens->iter]->name;
-    char *type = getTokenType(tokens->list[tokens->iter]->type);
-    for (int i = 0; i < indent; i++)
-        WRITE("\t")
-    WRITE("<%s> %s </%s>\n", type, name, type)
-}
-
-//********************************************************************************************************************//
-//* Helper Function writeToken                                                                                       *//
-//*     Input:                                                                                                       *//
-//*         tag: char * --tag to write                                                                               *//
-//*         outputFile: FILE * -- file to write to                                                                   *//
-//*         indent: int -- amount to indent xml to                                                                   *//
-//*     Writes a high scope tag in xml format                                                                        *//
-//*     Returns:                                                                                                     *//
-//*         void                                                                                                     *//
-//********************************************************************************************************************//
-void writeTag(char *tag, FILE *outputFile, int indent) {
-    for (int i = 0; i < indent; i++)
-        WRITE("\t")
-    WRITE("%s\n", tag)
 }
 
 //********************************************************************************************************************//
@@ -627,8 +593,8 @@ void writeTag(char *tag, FILE *outputFile, int indent) {
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
-void advance(TokenList *tokens) {
-    tokens->iter++;
+void advance(Compiler *compiler) {
+    compiler->tokens->iter++;
 }
 
 //********************************************************************************************************************//
@@ -638,8 +604,8 @@ void advance(TokenList *tokens) {
 //*     Returns:                                                                                                     *//
 //*         char -- current symbol in char format                                                                    *//
 //********************************************************************************************************************//
-char currentSymbol(TokenList *tokens) {
-    return tokens->list[tokens->iter]->name[0];
+char currentSymbol(Compiler *compiler) {
+    return compiler->tokens->list[compiler->tokens->iter]->name[0];
 }
 
 //********************************************************************************************************************//
@@ -650,9 +616,9 @@ char currentSymbol(TokenList *tokens) {
 //*     Returns:                                                                                                     *//
 //*         bool -- whether or not current symbol is equal to parameter                                              *//
 //********************************************************************************************************************//
-bool currentSymbolEQ(TokenList *tokens, char symbolName) {
-    ASSERT(tokens->list[tokens->iter]->type == SYMBOL, "current token is expected to be SYMBOL but is not")
-    return tokens->list[tokens->iter]->name[0] == symbolName;
+bool currentSymbolEQ(Compiler *compiler, char symbolName) {
+    ASSERT(compiler->tokens->list[compiler->tokens->iter]->type == SYMBOL, "current token is expected to be SYMBOL but is not")
+    return compiler->tokens->list[compiler->tokens->iter]->name[0] == symbolName;
 }
 
 //********************************************************************************************************************//
@@ -662,8 +628,8 @@ bool currentSymbolEQ(TokenList *tokens, char symbolName) {
 //*     Returns:                                                                                                     *//
 //*         char * -- current token full name                                                                        *//
 //********************************************************************************************************************//
-char *currentTokenWord(TokenList *tokens) {
-    return tokens->list[tokens->iter]->name;
+char *currentTokenWord(Compiler *compiler) {
+    return compiler->tokens->list[compiler->tokens->iter]->name;
 }
 
 //********************************************************************************************************************//
@@ -674,6 +640,6 @@ char *currentTokenWord(TokenList *tokens) {
 //*     Returns:                                                                                                     *//
 //*         bool -- whether or not current token is equal to parameter                                               *//
 //********************************************************************************************************************//
-bool currentTokenWordEQ(TokenList *tokens, char *name) {
-    return STREQUALS(tokens->list[tokens->iter]->name, name);
+bool currentTokenWordEQ(Compiler *compiler, char *name) {
+    return STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, name);
 }

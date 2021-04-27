@@ -1,7 +1,7 @@
 #include "includes.h"
 #include "parser.h"
 #include "tokenizer.h"
-#include "analyzer.h"
+#include "compiler.h"
 
 bool verbose = false;
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     struct stat path_stat;
     stat(filename, &path_stat);
     FILE *tokenOutputFile = NULL;
-    FILE *analyzeOutputFile = NULL;
+    FILE *compileOutputFile = NULL;
     char *filenameCPY = malloc(strlen(filename) + 1);
     memcpy(filenameCPY, filename, strlen(filename));
     filenameCPY[strlen(filename)] = '\0';
@@ -63,10 +63,10 @@ int main(int argc, char *argv[]) {
                 if (verbose)
                     fprintf(stderr, "\t* Analyzer output file: %s\n", outAnalyze);
                 tokenOutputFile = fopen(outToken, "w");
-                analyzeOutputFile = fopen(outAnalyze, "w");
+                compileOutputFile = fopen(outAnalyze, "w");
     
                 ASSERT(tokenOutputFile, "cannot open token output file to write")
-                ASSERT(analyzeOutputFile, "cannot open analyze output file to write")
+                ASSERT(compileOutputFile, "cannot open compile output file to write")
 
                 FILE *inputFile = fopen(input, "r");
                 ASSERT(inputFile, "cannot open input file to read")
@@ -75,14 +75,14 @@ int main(int argc, char *argv[]) {
                 TokenList *tokens = getTokens(out);
                 writeTokens(tokens, tokenOutputFile);
 
-                analyzeClass(tokens, analyzeOutputFile);
+                compileClass(tokens, compileOutputFile);
 
                 if (verbose)
                     fprintf(stderr, "* Freeing all data used\n");
 
                 fclose(inputFile);
                 fclose(tokenOutputFile);
-                fclose(analyzeOutputFile);
+                fclose(compileOutputFile);
                 freeList_Token(tokens);
                 free(out);
             }        

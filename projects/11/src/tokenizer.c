@@ -206,23 +206,3 @@ void freeList_Token(TokenList *tokens) {
     tokens->used = tokens->size = 0;
     free(tokens);
 }
-
-//********************************************************************************************************************//
-//* Helper Function writeTokens                                                                                      *//
-//*     Input:                                                                                                       *//
-//*         tokens: TokenList * -- List of tokens                                                                    *//
-//*         outputFile: FILE * -- file to write ot                                                                   *//
-//*     Writes each token to output file                                                                             *//
-//*     Returns:                                                                                                     *//
-//*         void                                                                                                     *//
-//********************************************************************************************************************//
-void writeTokens(TokenList *tokens, FILE *outputFile) {
-    WRITE("<tokens>\n")
-    for (int i = 0; i < tokens->used; i++) {
-        char *name = tokens->list[i]->name;
-        char *type = getTokenType(tokens->list[i]->type);
-        WRITE("<%s> %s </%s>\n", type, name, type)
-    }
-    WRITE("</tokens>")
-}
-
