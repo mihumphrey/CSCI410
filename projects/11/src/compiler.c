@@ -355,6 +355,8 @@ void compileLet(Compiler *compiler) {
     //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
     char *name = currentTokenWord(compiler);
+    char *segment = NULL;
+    int offset = 0;
     SymbolEntry *entry = getEntry(compiler, name);
     //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
@@ -363,16 +365,22 @@ void compileLet(Compiler *compiler) {
     if (compiler->tokens->list[compiler->tokens->iter - 1]->name[0] == '[') {
         isArr = true;
         if (entry != NULL) {
-            WRITE("push %s %d\n // let", getSymbolSegment(entry->segment), entry->offset)
+            WRITE("push %s %d\n", getSymbolSegment(entry->segment), entry->offset)
+            segment = "that";
+            offset = 0;
         } else ASSERT(0 == 1, "symbol not defined")
         compileExpression(compiler);
+        WRITE("add\n");
         ASSERT(currentSymbolEQ(compiler, ']'), "']' expected after end of expression")
         //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
         ASSERT(currentSymbolEQ(compiler, '='), "'=' expected after end of expression")
         //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
-    } 
+    } else {
+        segment = getSymbolSegment(entry->segment);
+        offset = entry->offset;
+    }
     
     compileExpression(compiler);
     if (isArr) {
@@ -380,7 +388,7 @@ void compileLet(Compiler *compiler) {
         WRITE("pop pointer 1\n")
         WRITE("push temp 0\n");
     }
-    WRITE("pop %s %d\n", getSymbolSegment(entry->segment), entry->offset) 
+    WRITE("pop %s %d\n", segment, offset) 
     ASSERT(currentSymbolEQ(compiler, ';'), "';' expected after let statement 1")
     //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
@@ -701,7 +709,7 @@ void compileTerm(Compiler *compiler) {
             WRITE("call String.new 1\n")
             for (int i = 0; i < strlen(currentTokenWord(compiler)); i++) {
                 WRITE("push constant %d\n", currentTokenWord(compiler)[i])
-                WRITE("call String.appendChar 2")
+                WRITE("call String.appendChar 2\n")
             }
             advance(compiler);
             break;
