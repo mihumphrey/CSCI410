@@ -9,21 +9,28 @@ typedef enum __SEGMENT__ {
 
 typedef struct __SYMBOL_ENTRY__ {
     char *name;
+    char *type;
     Segment segment;
     int offset;    
 } SymbolEntry;
 
 typedef struct __SYMBOL_TABLE__ {
-    SymbolEntry *list;
+    SymbolEntry **list;
     size_t used;
     size_t size;
+    bool isConstructor;
+    bool isMethod;
 } SymbolTable;
 
 
 void initList_symbolTable(SymbolTable *tokens, size_t initialSize);
-void insertList_symbolTable(SymbolTable *tokens, SymbolEntry element);
+void insertList_symbolTable(SymbolTable *tokens, SymbolEntry *element);
 void freeList_symbolTable(SymbolTable *tokens);
-SymbolEntry *get(SymbolTable *tokens, char *name);
+SymbolEntry *getSymbolEntry(SymbolTable *tokens, char *name);
 bool contains(SymbolTable *tokens, char *name);
 void clear(SymbolTable *tokens);
+int getNextOffset(SymbolTable *tokens, Segment segment);
+
+void printTable(SymbolTable *table);
+char *getSymbolSegment(Segment segment);
 #endif

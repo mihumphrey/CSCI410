@@ -1,0 +1,115 @@
+function Bat.new 4
+push constant 5
+call Memory.alloc 1
+pop pointer 0
+pop this 0
+pop this 1
+pop this 2
+pop this 3
+pop this 4
+pop temp 0
+return
+function Bat.dispose 0
+push arg 0
+pop pointer 0
+pop temp 0
+push constant 0
+return
+function Bat.show 0
+push arg 0
+pop pointer 0
+pop temp 0
+pop temp 0
+push constant 0
+return
+function Bat.hide 0
+push arg 0
+pop pointer 0
+pop temp 0
+pop temp 0
+push constant 0
+return
+function Bat.draw 0
+push arg 0
+pop pointer 0
+add
+add
+pop temp 0
+push constant 0
+return
+function Bat.setDirection 1
+push arg 0
+pop pointer 0
+pop this 4
+push constant 0
+return
+function Bat.getLeft 0
+push arg 0
+pop pointer 0
+return
+function Bat.getRight 0
+push arg 0
+pop pointer 0
+add
+return
+function Bat.setWidth 1
+push arg 0
+pop pointer 0
+pop temp 0
+pop this 2
+pop temp 0
+push constant 0
+return
+function Bat.move 0
+push arg 0
+pop pointer 0
+eq
+if-goto IF-TRUE-84
+goto IF-FALSE-85
+label IF-TRUE-84
+sub
+pop this 0
+lt
+if-goto IF-TRUE-87
+goto IF-FALSE-88
+label IF-TRUE-87
+pop this 0
+label IF-FALSE-88
+pop temp 0
+add
+add
+add
+add
+add
+pop temp 0
+pop temp 0
+add
+add
+pop temp 0
+goto IF-END-86
+label IF-FALSE-85
+add
+pop this 0
+add
+gt
+if-goto IF-TRUE-90
+goto IF-FALSE-91
+label IF-TRUE-90
+sub
+pop this 0
+label IF-FALSE-91
+pop temp 0
+sub
+sub
+add
+pop temp 0
+pop temp 0
+add
+sub
+add
+add
+pop temp 0
+label IF-END-86
+label IF-FALSE-85
+push constant 0
+return

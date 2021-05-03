@@ -1,0 +1,284 @@
+function Ball.new 6
+push constant 15
+call Memory.alloc 1
+pop pointer 0
+pop this 0
+pop this 1
+pop this 10
+sub
+pop this 11
+pop this 12
+sub
+pop this 13
+pop this 14
+pop temp 0
+return
+function Ball.dispose 0
+push arg 0
+pop pointer 0
+pop temp 0
+push constant 0
+return
+function Ball.show 0
+push arg 0
+pop pointer 0
+pop temp 0
+pop temp 0
+push constant 0
+return
+function Ball.hide 0
+push arg 0
+pop pointer 0
+pop temp 0
+pop temp 0
+push constant 0
+return
+function Ball.draw 0
+push arg 0
+pop pointer 0
+add
+add
+pop temp 0
+push constant 0
+return
+function Ball.getLeft 0
+push arg 0
+pop pointer 0
+return
+function Ball.getRight 0
+push arg 0
+pop pointer 0
+add
+return
+function Ball.setDestination 2
+push arg 0
+pop pointer 0
+sub
+pop this 2
+sub
+pop this 3
+call Math.abs 0
+pop this 4
+call Math.abs 0
+pop this 4
+lt
+pop this 7
+if-goto IF-TRUE-33
+goto IF-FALSE-34
+label IF-TRUE-33
+pop local 2
+pop this 4
+pop this 4
+lt
+pop this 8
+lt
+pop this 9
+goto IF-END-35
+label IF-FALSE-34
+lt
+pop this 8
+lt
+pop this 9
+label IF-END-35
+label IF-FALSE-34
+call Math.multiply 2
+sub
+pop this 4
+call Math.multiply 2
+pop this 5
+sub
+call Math.multiply 2
+pop this 4
+push constant 0
+return
+function Ball.move 0
+push arg 0
+pop pointer 0
+pop temp 0
+lt
+if-goto IF-TRUE-36
+goto IF-FALSE-37
+label IF-TRUE-36
+add
+pop this 4
+goto IF-END-38
+label IF-FALSE-37
+add
+pop this 4
+if-goto IF-TRUE-39
+goto IF-FALSE-40
+label IF-TRUE-39
+if-goto IF-TRUE-42
+goto IF-FALSE-43
+label IF-TRUE-42
+add
+pop this 0
+goto IF-END-44
+label IF-FALSE-43
+add
+pop this 1
+label IF-END-44
+label IF-FALSE-43
+goto IF-END-41
+label IF-FALSE-40
+if-goto IF-TRUE-45
+goto IF-FALSE-46
+label IF-TRUE-45
+sub
+pop this 0
+goto IF-END-47
+label IF-FALSE-46
+sub
+pop this 1
+label IF-END-47
+label IF-FALSE-46
+label IF-END-41
+label IF-FALSE-40
+label IF-END-38
+label IF-FALSE-37
+if-goto IF-TRUE-48
+goto IF-FALSE-49
+label IF-TRUE-48
+if-goto IF-TRUE-51
+goto IF-FALSE-52
+label IF-TRUE-51
+add
+pop this 1
+goto IF-END-53
+label IF-FALSE-52
+add
+pop this 0
+label IF-END-53
+label IF-FALSE-52
+goto IF-END-50
+label IF-FALSE-49
+if-goto IF-TRUE-54
+goto IF-FALSE-55
+label IF-TRUE-54
+sub
+pop this 1
+goto IF-END-56
+label IF-FALSE-55
+sub
+pop this 0
+label IF-END-56
+label IF-FALSE-55
+label IF-END-50
+label IF-FALSE-49
+gt
+if-goto IF-TRUE-57
+goto IF-FALSE-58
+label IF-TRUE-57
+pop this 14
+pop this 0
+label IF-FALSE-58
+lt
+if-goto IF-TRUE-60
+goto IF-FALSE-61
+label IF-TRUE-60
+pop this 14
+pop this 0
+label IF-FALSE-61
+gt
+if-goto IF-TRUE-63
+goto IF-FALSE-64
+label IF-TRUE-63
+pop this 14
+pop this 1
+label IF-FALSE-64
+lt
+if-goto IF-TRUE-66
+goto IF-FALSE-67
+label IF-TRUE-66
+pop this 14
+pop this 1
+label IF-FALSE-67
+pop temp 0
+return
+function Ball.bounce 1
+push arg 0
+pop pointer 0
+call Math.divide 2
+pop this 4
+call Math.divide 2
+pop this 4
+eq
+if-goto IF-TRUE-69
+goto IF-FALSE-70
+label IF-TRUE-69
+pop local 4
+goto IF-END-71
+label IF-FALSE-70
+lt
+eq
+and
+lt
+eq
+and
+or
+if-goto IF-TRUE-72
+goto IF-FALSE-73
+label IF-TRUE-72
+pop local 4
+goto IF-END-74
+label IF-FALSE-73
+pop local 4
+label IF-END-74
+label IF-FALSE-73
+label IF-END-71
+label IF-FALSE-70
+eq
+if-goto IF-TRUE-75
+goto IF-FALSE-76
+label IF-TRUE-75
+pop local 0
+call Math.multiply 2
+call Math.divide 2
+pop local 1
+call Math.multiply 2
+add
+pop local 1
+goto IF-END-77
+label IF-FALSE-76
+eq
+if-goto IF-TRUE-78
+goto IF-FALSE-79
+label IF-TRUE-78
+pop local 0
+call Math.multiply 2
+call Math.divide 2
+pop local 1
+call Math.multiply 2
+add
+pop local 1
+goto IF-END-80
+label IF-FALSE-79
+eq
+if-goto IF-TRUE-81
+goto IF-FALSE-82
+label IF-TRUE-81
+pop local 1
+call Math.multiply 2
+call Math.divide 2
+pop local 0
+call Math.multiply 2
+add
+pop local 0
+goto IF-END-83
+label IF-FALSE-82
+pop local 1
+call Math.multiply 2
+call Math.divide 2
+pop local 0
+call Math.multiply 2
+add
+pop local 0
+label IF-END-83
+label IF-FALSE-82
+label IF-END-80
+label IF-FALSE-79
+label IF-END-77
+label IF-FALSE-76
+pop temp 0
+push constant 0
+return

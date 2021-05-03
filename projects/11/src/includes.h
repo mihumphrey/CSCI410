@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #include "grammar.h"
 
@@ -16,7 +17,7 @@
 
 #define STREQUALS(arg1, arg2) strncmp((arg1), (arg2), strlen((arg1))) == 0
 
-#define WRITE(...) fprintf(outputFile, __VA_ARGS__);
+#define WRITE(...) fprintf(compiler->outputFile, __VA_ARGS__);
 
 
 #define MAX_LINE_LENGTH 256

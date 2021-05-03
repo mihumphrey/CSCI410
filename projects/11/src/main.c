@@ -23,9 +23,20 @@ int main(int argc, char *argv[]) {
 
     if (verbose)
         fprintf(stderr, "* Compiling: %s\n", filename);
+
+    Compiler *compiler = malloc(sizeof(Compiler));
+    compiler->labelNum = 0;
+
+    compiler->classTable = malloc(sizeof(SymbolTable));
+    compiler->subroutineTable = malloc(sizeof(SymbolTable));
+
+    initList_symbolTable(compiler->classTable, 2);
+    initList_symbolTable(compiler->subroutineTable, 2);
+
+
     struct stat path_stat;
     stat(filename, &path_stat);
-    FILE *compileOutputFile = NULL;
+    compiler->outputFile = NULL;
     char *filenameCPY = malloc(strlen(filename) + 1);
     memcpy(filenameCPY, filename, strlen(filename));
     filenameCPY[strlen(filename)] = '\0';
@@ -48,40 +59,39 @@ int main(int argc, char *argv[]) {
         
                 if (verbose)
                     fprintf(stderr, "\t* Compiling File: %s\n", input);
-                char outToken[PATH_MAX + 1] = {0};
                 char outCompile[PATH_MAX + 1] = {0};
-                memcpy(outToken, input, strlen(input) - strlen(ext));
                 memcpy(outCompile, input, strlen(input) - strlen(ext));
-                strcat(outToken, "T.xml");
-                strcat(outCompile, ".xml");
-                outToken[strlen(input)] = '\0';
+                strcat(outCompile, ".vm");
                 outCompile[strlen(input)] = '\0';
 
                 if (verbose)
                     fprintf(stderr, "\t* Compiler output file: %s\n", outCompile);
-                compileOutputFile = fopen(outCompile, "w");
+                compiler->outputFile = fopen(outCompile, "w");
     
-                ASSERT(compileOutputFile, "cannot open compile output file to write")
+                ASSERT(compiler->outputFile, "cannot open compile output file to write")
 
                 FILE *inputFile = fopen(input, "r");
                 ASSERT(inputFile, "cannot open input file to read")
   
                 char *out = parse(inputFile);
-                TokenList *tokens = getTokens(out);
-
-                compileClass(tokens, compileOutputFile);
+                compiler->tokens = getTokens(out);
+                
+                compileClass(compiler);
 
                 if (verbose)
                     fprintf(stderr, "* Freeing all data used\n");
 
                 fclose(inputFile);
-                fclose(compileOutputFile);
-                freeList_Token(tokens);
+                fclose(compiler->outputFile);
+//                freeList_Token(compiler->tokens);
                 free(out);
             }        
         }
         closedir(dir);
     }
     free(filenameCPY);
+//    freeList_symbolTable(compiler->classTable);
+//    freeList_symbolTable(compiler->subroutineTable);
+    free(compiler);
     return 0;
 }

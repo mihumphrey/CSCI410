@@ -104,7 +104,7 @@ bool isSubroutineOpening(const char *keyword) {
     return false;
 }
 
-bool isStatementOpening(const char *keyword) {
+bool isStatementOpening(char *keyword) {
     for (int i = 0; i < STATEMENT_OPENINGS_LEN; i++) {
         if (STREQUALS(STATEMENT_OPENINGS[i], keyword))
             return true;
@@ -182,4 +182,24 @@ char *getTokenType(TokenType type) {
         case SYMBOL: return "symbol";
     }
     return "";
+}
+
+const char *getArithCommand(char *command) {
+    if (STREQUALS(command, "+")) return "add";
+    else if (STREQUALS(command, "-")) return "sub";
+    else if (STREQUALS(command, "&amp;")) return "and";
+    else if (STREQUALS(command, "|")) return "or";
+    else if (STREQUALS(command, "&lt;")) return "lt";
+    else if (STREQUALS(command, "&gt;")) return "gt";
+    else if (STREQUALS(command, "=")) return "eq";
+    else if (STREQUALS(command, "*")) return "call Math.multiply 2";
+    else if (STREQUALS(command, "/")) return "call Math.divide 2";
+    else ASSERT(0 == 1, "arithmetic operator not found")
+    return NULL;
+}
+
+const char *getUnaryArithCommand(char command) {
+    if (command == '-') return "neg";
+    else if (command == '~') return "not";
+    else {printf("UNARY OP: %c\n", command);ASSERT(0 == 1, "invalid unary operator")}
 }

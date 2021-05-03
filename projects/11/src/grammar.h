@@ -12,8 +12,6 @@
 #define STATEMENT_OPENINGS_LEN 5
 #define OPERATORS_LEN 9
 #define UNARY_OPS_LEN 2
-#define CLASS_DEC_VARS 3
-#define SUBROUTINE_DEC_TOKENS 4
 
 typedef enum __TOKEN_TYPE__ {
     KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST
@@ -49,7 +47,7 @@ const char UNARY_OPS[UNARY_OPS_LEN];
 
 bool isClassVarOpening(const char *keyword);
 bool isSubroutineOpening(const char *keyword);
-bool isStatementOpening(const char *keyword);
+bool isStatementOpening(char *keyword);
 bool isOperator(const char *keyword);
 bool isUnaryOp(const char op);
 bool isSymbol(char in);
@@ -58,4 +56,6 @@ bool isKeyword(char *keyword);
 bool isNum(char *in);
 char *getTokenType(TokenType type);
 
+const char *getArithCommand(char *command);
+const char *getUnaryArithCommand(char command);
 #endif

@@ -61,11 +61,11 @@ TokenList *getTokens(char *input) {
             inOther = true;
             otherString = malloc(sizeof(CharList));
             initList_char(otherString, 1);
-            if (input[i] != ' ')
+            if (!isspace(input[i]))
                 insertList_char(otherString, input[i]);
 
         } else if (inOther) {
-            if (input[i] != ' ')
+            if (!isspace(input[i]))
                 insertList_char(otherString, input[i]);
         } 
         
@@ -74,7 +74,7 @@ TokenList *getTokens(char *input) {
             char *otherChar = malloc(otherString->used + 1);
             strncpy(otherChar, otherString->list, otherString->used);
             otherChar[otherString->used] = '\0';
-            if (STREQUALS(otherChar, " ")) {
+            if (STREQUALS(otherChar, " ") || STREQUALS(otherChar, "\t")) {
                 isspace = true;
             }
 
@@ -96,9 +96,13 @@ TokenList *getTokens(char *input) {
         }
 
         if (insertSymbol) {
+            if (verbose)
+                fprintf(stderr, "\t\t\t* Inserting Token -- NAME: %s\t     TYPE: %s\n", symbolToken->name, getTokenType(symbolToken->type)); 
             insertList_Token(tokens, symbolToken);
         }
         if (insertString) {
+            if (verbose)
+                fprintf(stderr, "\t\t\t* Inserting Token -- NAME: %s\t     TYPE: %s\n", stringToken->name, getTokenType(stringToken->type)); 
             insertList_Token(tokens, stringToken);
             freeList_char(stringConst);
         }
@@ -198,11 +202,12 @@ void insertList_Token(TokenList *tokens, Token *element) {
 //********************************************************************************************************************//
 void freeList_Token(TokenList *tokens) {
     for (int i = 0; i < tokens->used; i++) {
-        free(tokens->list[i] ->name);
+        if (strlen(tokens->list[i]->name) > 0)
+        free(tokens->list[i]->name);
         free(tokens->list[i]);
     }
     free(tokens->list);
     tokens->list = NULL;
     tokens->used = tokens->size = 0;
-    free(tokens);
+//    free(tokens);
 }
