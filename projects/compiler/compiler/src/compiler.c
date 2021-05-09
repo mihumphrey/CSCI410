@@ -15,11 +15,15 @@ void compileClass(Compiler *compiler) {
         fprintf(stderr, "\t\t* Beginning Compiling\n");
     ASSERT(currentTokenWordEQ(compiler, "class"), "\"class\" expected as first token")
     compiler->classTable = malloc(sizeof(SymbolTable));
-    initList_symbolTable(compiler->classTable, 2); 
     
+    if (verbose)
+        fprintf(stderr, "\t\t\t* Initializing class symbol table\n");
+    initList_symbolTable(compiler->classTable, 2); 
     
     advance(compiler);
     compiler->className = currentTokenWord(compiler);
+    if (verbose)
+        fprintf(stderr, "\t\t\t* Found Class Name: %s\n", compiler->className);
     advance(compiler);
     advance(compiler);
 
@@ -87,17 +91,22 @@ void compileClassVarDec(Compiler *compiler) {
 void compileSubroutineDec(Compiler *compiler) {
     compiler->subroutineTable = malloc(sizeof(SymbolTable));
     initList_symbolTable(compiler->subroutineTable, 2); 
-    SymbolEntry *entry = malloc(sizeof(SymbolEntry));
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Subroutine Declaration\n");
-    //clear(compiler->subroutineTable);
+    if (verbose)
+        fprintf(stderr, "\t\t\t\t* Initializing Subroutine Symbol Table\n");
+    SymbolEntry *entry = malloc(sizeof(SymbolEntry));
     ASSERT(currentTokenWordEQ(compiler, "method") || currentTokenWordEQ(compiler, "constructor") || currentTokenWordEQ(compiler, "function"), "expected method or constructor keyword at beginning of subroutine")
 
     if (currentTokenWordEQ(compiler, "constructor")) {
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Constructor Found\n");
         compiler->classTable->isConstructor = true;
         compiler->classTable->isMethod = false;
     }
     else if (currentTokenWordEQ(compiler, "method")) {
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Method Found\n");
         compiler->classTable->isMethod = true;
         compiler->classTable->isConstructor = false;
         entry->name = "instance";
@@ -105,6 +114,8 @@ void compileSubroutineDec(Compiler *compiler) {
         entry->segment = ARG;
         insertList_symbolTable(compiler->subroutineTable, entry);
     } else {
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Function Found\n");
         compiler->classTable->isMethod = false;
         compiler->classTable->isConstructor = false;
     }   
@@ -113,6 +124,8 @@ void compileSubroutineDec(Compiler *compiler) {
     advance(compiler);
     advance(compiler);
     compiler->subroutineName = currentTokenWord(compiler);
+    if (verbose)
+        fprintf(stderr, "\t\t\t\t* Found Subroutine Name: %s\n", compiler->subroutineName);
     advance(compiler);
     ASSERT(currentSymbolEQ(compiler, '('), "'(' expected at beginning of parameter list")
     advance(compiler);
@@ -120,6 +133,11 @@ void compileSubroutineDec(Compiler *compiler) {
     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected at end of parameter list")
     advance(compiler);
     compileSubroutineBody(compiler);
+    
+    if (verbose) {
+        fprintf(stderr, "\t\t\t\t* Freeing  Subroutine Symbol Table: \n");
+        printTable(compiler->subroutineTable);
+    }
     freeList_symbolTable(compiler->subroutineTable);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Subroutine Declaration\n");
@@ -142,6 +160,8 @@ void compileSubroutineBody(Compiler *compiler) {
         compileVarDec(compiler);
         advance(compiler);
     }
+    if (verbose)
+        fprintf(stderr, "\t\t\t\t* Found Function: function %s.%s %d\n", compiler->className, compiler->subroutineName, getNextOffset(compiler->subroutineTable, LOCAL));
     WRITE("function %s.%s %d\n" ,compiler->className, compiler->subroutineName, getNextOffset(compiler->subroutineTable, LOCAL));
     
     if (compiler->classTable->isConstructor) {
@@ -295,18 +315,19 @@ void compileLet(Compiler *compiler) {
     int offset = 0;
     
     SymbolEntry *entry = getEntry(compiler, name);
+    ASSERT(entry, "could not find entry in symbol table")
+    if (verbose)
+        fprintf(stderr, "\t\t\t\t* Found symbol in subroutine table: SEGMENT: %d\tTYPE: %s\tNAME: %s\n", entry->segment, entry->type, entry->name);
     advance(compiler);
     advance(compiler);
     if (compiler->tokens->list[compiler->tokens->iter - 1]->name[0] == '[') {
         isArr = true;
-        if (entry != NULL) {
-            WRITE("push %s %d\n", getSymbolSegment(entry->segment), entry->offset)
-            compileExpression(compiler);
-            ASSERT(currentSymbolEQ(compiler, ']'), "']' expected after end of expression")
-            WRITE("add\n");
-            segment = "that";
-            offset = 0;
-        } else ASSERT(0 == 1, "symbol not defined")
+        WRITE("push %s %d\n", getSymbolSegment(entry->segment), entry->offset)
+        compileExpression(compiler);
+        ASSERT(currentSymbolEQ(compiler, ']'), "']' expected after end of expression")
+        WRITE("add\n");
+        segment = "that";
+        offset = 0;
         advance(compiler);
         ASSERT(currentSymbolEQ(compiler, '='), "'=' expected after end of expression")
         advance(compiler);
@@ -340,20 +361,10 @@ void compileLet(Compiler *compiler) {
 void compileWhile(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling While Statement\n");
-    char labelNumchar[256];
-    sprintf(labelNumchar, "%d", compiler->labelNum++);
-    int len = strlen(labelNumchar) + 1;
-    char *trueLabel = calloc(1, len + 1);
-    trueLabel[0] = 'W';
-    strcat(&trueLabel[1], labelNumchar);
-    trueLabel[len] = '\0'; 
-
-    sprintf(labelNumchar, "%d", compiler->labelNum++);
-    len = strlen(labelNumchar) + 1;
-    char *falseLabel = calloc(1, len + 1);
-    falseLabel[0] = 'W';
-    strcat(&falseLabel[1], labelNumchar);
-    falseLabel[len] = '\0'; 
+    char trueLabel[256], endLabel[256];
+    sprintf(trueLabel, "WHILE%d", compiler->labelNum);
+    sprintf(endLabel, "WHILE_END%d", compiler->labelNum);
+    compiler->labelNum++;
         
     ASSERT(currentTokenWordEQ(compiler, "while"), "'while' keyword expected")
     advance(compiler);
@@ -365,7 +376,7 @@ void compileWhile(Compiler *compiler) {
     compileExpression(compiler);
 
     WRITE("not\n")
-    WRITE("if-goto %s\n", falseLabel)
+    WRITE("if-goto %s\n", endLabel)
     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected in while statement")
     advance(compiler);
 
@@ -374,7 +385,7 @@ void compileWhile(Compiler *compiler) {
 
     compileStatements(compiler);
     WRITE("goto %s\n", trueLabel)
-    WRITE("label %s\n", falseLabel)
+    WRITE("label %s\n", endLabel)
     ASSERT(currentSymbolEQ(compiler, '}'), "'}' expected in while statement")
     advance(compiler);
 
@@ -397,8 +408,12 @@ void compileReturn(Compiler *compiler) {
     advance(compiler);
 
     if (currentSymbol(compiler) != ';') {
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Return Expression found!\n");
         compileExpression(compiler);
     } else {
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* No Return Expression found! Returning 0\n");
         WRITE("push constant 0\n")
     }
     WRITE("return\n")
@@ -423,9 +438,10 @@ void compileIf(Compiler *compiler) {
         fprintf(stderr, "\t\t\t* Compiling If Statement\n");
 
     char trueLabel[256], falseLabel[256], endLabel[256];
-    sprintf(trueLabel, "IF-TRUE%d", compiler->labelNum++);
-    sprintf(falseLabel, "IF-FALSE%d", compiler->labelNum++);
-    sprintf(endLabel, "IF-END%d", compiler->labelNum++);
+    sprintf(trueLabel, "IF-TRUE%d", compiler->labelNum);
+    sprintf(falseLabel, "IF-FALSE%d", compiler->labelNum);
+    sprintf(endLabel, "IF-END%d", compiler->labelNum);
+    compiler->labelNum++;
 
 
     ASSERT(currentTokenWordEQ(compiler, "if"), "'if' keyword expected")
@@ -454,6 +470,9 @@ void compileIf(Compiler *compiler) {
 
     WRITE("label %s\n", falseLabel)
     if (currentTokenWordEQ(compiler, "else")) {
+        
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Found Else Statement\n");
         ASSERT(currentTokenWordEQ(compiler, "else"), "'else' keyword expected")
         advance(compiler);
 
@@ -486,6 +505,8 @@ void compileExpression(Compiler *compiler) {
     while (isOperator(currentTokenWord(compiler))) {
         const char *operator = getArithCommand(currentTokenWord(compiler));
             
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Found Operator: %s\n", operator);
         advance(compiler);
         compileTerm(compiler);
         WRITE("%s\n", operator)
@@ -509,6 +530,8 @@ void compileTerm(Compiler *compiler) {
     SymbolEntry *entry;
     switch(compiler->tokens->list[compiler->tokens->iter ]->type) {
         case IDENTIFIER : 
+            if (verbose)
+                fprintf(stderr, "\t\t\t\t* Found Identifier: %s\n", currentTokenWord(compiler));
             name = currentTokenWord(compiler);
             advance(compiler);
             ASSERT(compiler->tokens->list[compiler->tokens->iter]->type == SYMBOL, "expected symbol")         
@@ -562,6 +585,8 @@ void compileTerm(Compiler *compiler) {
             } 
             break;
         case SYMBOL :
+            if (verbose)
+                fprintf(stderr, "\t\t\t\t* Found Symbol: %s\n", currentTokenWord(compiler));
             if (currentSymbolEQ(compiler, '(')) {
                 advance(compiler);
                 compileExpression(compiler);
@@ -572,10 +597,12 @@ void compileTerm(Compiler *compiler) {
                 advance(compiler);
                 compileTerm(compiler);
                 WRITE("%s\n", getUnaryArithCommand(op)) 
-            } else printf("EHRERERERE\n");
+            }
             break;
 
         case KEYWORD :
+            if (verbose)
+                fprintf(stderr, "\t\t\t\t* Found Keyword: %s\n", currentTokenWord(compiler));
             if (STREQUALS(currentTokenWord(compiler), "null") || STREQUALS(currentTokenWord(compiler), "false"))
                 WRITE("push constant 0\n")
             else if (STREQUALS(currentTokenWord(compiler), "true")) {
@@ -588,6 +615,8 @@ void compileTerm(Compiler *compiler) {
             break;
 
         case STRING_CONST :
+            if (verbose)
+                fprintf(stderr, "\t\t\t\t* Found String Const: %s\n", currentTokenWord(compiler));
             WRITE("push constant %d\n", (int)strlen(currentTokenWord(compiler)))
             WRITE("call String.new 1\n")
             for (int i = 0; i < strlen(currentTokenWord(compiler)); i++) {
@@ -598,6 +627,8 @@ void compileTerm(Compiler *compiler) {
             break;
 
         case INT_CONST :
+            if (verbose)
+                fprintf(stderr, "\t\t\t\t* Found Int Const: %d\n", atoi(currentTokenWord(compiler)));
             WRITE("push constant %d\n", atoi(currentTokenWord(compiler))) 
             advance(compiler);
             break;
@@ -665,12 +696,16 @@ void compileExpressionList(Compiler *compiler) {
         fprintf(stderr, "\t\t\t* Compiling Expression List\n");
     compiler->numExpressions = 0;
     while (currentSymbol(compiler) != ')') {
+        if (verbose)
+            fprintf(stderr, "\t\t\t\t* Found Expression: %s\n", currentTokenWord(compiler));
         compiler->numExpressions++;
         compileExpression(compiler);
         if (currentSymbolEQ(compiler, ',')) {
             advance(compiler);
         }
     }
+    if (verbose)
+        fprintf(stderr, "\t\t\t\t* Found %d Expressions in list\n", compiler->numExpressions);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Expression List\n");
 }

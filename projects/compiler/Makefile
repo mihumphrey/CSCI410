@@ -11,7 +11,6 @@ ASSEMHFILES := $(wildcard assembler/src/*.h)
 all: $(COMPSRCFILES) $(COMPHFILES) $(ANALSRCFILES) $(ANALHFILES) $(TRANSSRCFILES) $(TRANSHFILES) $(ASSEMSRCFILES) $(ASSEMHFILES) 
 	gcc -Wall -g -Ofast -o run $(ALLSRCFILES) -lm 
 	gcc -Wall -g -Ofast -o bin/compiler $(COMPSRCFILES) -lm 
-	gcc -Wall -g -Ofast -o bin/compiler $(COMPSRCFILES) -lm 
 	gcc -Wall -g -Ofast -o bin/analyzer $(ANALSRCFILES) -lm 
 	gcc -Wall -g -Ofast -o bin/translator $(TRANSSRCFILES) -lm 
 	gcc -Wall -g -Ofast -o bin/assembler $(ASSEMSRCFILES) -lm 
@@ -31,7 +30,12 @@ translator: $(TRANSSRCFILES) $(TRANSHFILES)
 assembler: $(ASSEMSRCFILES) $(ASSEMHFILES) 
 	gcc -Wall -g -Ofast -o bin/assembler $(ASSEMSRCFILES) -lm 
 
+zip:
+	make clean >/dev/null
+	zip -r michaelhumphrey.zip src bin compiler analyzer translator assembler 
+ 
+
 clean:
-	rm -f bin/*
+	rm -f bin/* 
 
 .PHONY: all total compiler analyzer translator assembler clean

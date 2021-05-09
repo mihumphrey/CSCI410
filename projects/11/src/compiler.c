@@ -296,6 +296,7 @@ void compileLet(Compiler *compiler) {
     int offset = 0;
     
     SymbolEntry *entry = getEntry(compiler, name);
+    printf("ENTRY: NAME: %s\t TYPE: %s\n", entry->name, entry->type);
     advance(compiler);
     advance(compiler);
     if (compiler->tokens->list[compiler->tokens->iter - 1]->name[0] == '[') {

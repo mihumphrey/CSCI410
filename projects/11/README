@@ -1,14 +1,11 @@
-Jared Lincenberg
-10 hours
+- Michael Humphrey
+- I did not receive help on this assignment
 
-Using 3 slip days
+- This project took well over 15 hours to complete
 
-Aha - Figure out a better way to handle tokenization.
-- Realized it was the same form as the xml.
-- Seperating functionality made things easier.
+- My 'aha' moment was when I realized that I need to store methods as arg 0
 
-Build Instructions: 
-For directory projects
-	python project11.py path/to/dir
-For single file projects
-	python project11.py path/to/file.jack
+- My compiler is buit with a makefile, simply by running 'make'
+    The directory may be specified as a command line argument with the optional -v flag for verbose output
+    The make command creates an executable 'compiler' in the cwd.
+    Simply run ./compiler [filename] [-v]? to execute my code
