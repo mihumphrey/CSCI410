@@ -6,8 +6,8 @@ extern bool verbose;
 //********************************************************************************************************************//
 //* Function compileClass                                                                                            *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                     *//
-//*     Converts entire class into xml format                                                                        *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts entire class into vm code                                                                           *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -40,8 +40,8 @@ void compileClass(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileClassVarDec                                                                                      *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                     *//
-//*     Converts field/static var decs into xml format                                                               *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts field/static var decs into vm code                                                                  *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -80,8 +80,8 @@ void compileClassVarDec(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileSubroutineDec                                                                                    *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts functions/constructors into xml format                                                              *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts functions/constructors into vm code                                                                 *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -129,8 +129,8 @@ void compileSubroutineDec(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileSubroutineBody                                                                                   *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts body of subroutine into xml format                                                                  *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts body of subroutine into vm code                                                                     *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -165,8 +165,8 @@ void compileSubroutineBody(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileParameterList                                                                                    *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts parameter list (int x, int y, etc) into xml format                                                  *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts parameter list (int x, int y, etc) into vm code                                                     *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -193,8 +193,8 @@ void compileParameterList(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileVarDec                                                                                           *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts var decs into xml format                                                                            *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts var decs into vm code                                                                               *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -230,8 +230,8 @@ void compileVarDec(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileStatements                                                                                       *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts all statements into xml format                                                                      *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts all statements into vm code                                                                         *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -258,8 +258,8 @@ void compileStatements(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileDo                                                                                               *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts do statement into xml format                                                                        *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts do statement into vm code                                                                           *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -279,8 +279,8 @@ void compileDo(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileLet                                                                                              *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts let statement into xml format                                                                       *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts let statement into vm code                                                                          *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -333,8 +333,8 @@ void compileLet(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileWhile                                                                                            *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts while statement into xml format                                                                     *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts while statement into vm code                                                                        *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -386,8 +386,8 @@ void compileWhile(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileReturn                                                                                           *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts return statement into xml format                                                                    *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts return statement into vm code                                                                       *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -414,8 +414,8 @@ void compileReturn(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileIf                                                                                               *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts if statement into xml format                                                                        *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts if statement into vm code                                                                           *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -475,8 +475,8 @@ void compileIf(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileExpression                                                                                       *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts nested expression into xml format                                                                   *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts nested expression into vm code                                                                      *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -498,8 +498,8 @@ void compileExpression(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileTerm                                                                                             *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts terminal into xml format                                                                            *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts terminal into vm code                                                                               *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -612,8 +612,8 @@ void compileTerm(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compilesubroutineCall                                                                                   *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts subrioutineCall into xml format                                                                     *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts subrioutineCall into vm code                                                                        *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -656,8 +656,8 @@ void compileSubroutineCall(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileExpressionList                                                                                   *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     Converts expression list (x, y) into xml format                                                              *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     Converts expression list (x, y) into vm code                                                                 *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -679,8 +679,8 @@ void compileExpressionList(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function advance                                                                                          *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
-//*     increments compiler->tokens iterator by one                                                                            *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*     increments compiler->tokens iterator by one                                                                  *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
@@ -691,7 +691,7 @@ void advance(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function currentsymbol                                                                                    *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
 //*     Returns:                                                                                                     *//
 //*         char -- current symbol in char format                                                                    *//
 //********************************************************************************************************************//
@@ -702,7 +702,8 @@ char currentSymbol(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function currentSymbolEQ                                                                                  *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*         symbolName: char * -- char to compare                                                                    *//
 //*     Returns:                                                                                                     *//
 //*         bool -- whether or not current symbol is equal to parameter                                              *//
 //********************************************************************************************************************//
@@ -714,7 +715,7 @@ bool currentSymbolEQ(Compiler *compiler, char symbolName) {
 //********************************************************************************************************************//
 //* Helper Function currenTokenWord                                                                                  *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
 //*     Returns:                                                                                                     *//
 //*         char * -- current token full name                                                                        *//
 //********************************************************************************************************************//
@@ -725,7 +726,8 @@ char *currentTokenWord(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function currentTokenWordEQ                                                                               *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*         name: char * -- string to compare to                                                                     *//
 //*     Returns:                                                                                                     *//
 //*         bool -- whether or not current token is equal to parameter                                               *//
 //********************************************************************************************************************//
@@ -733,6 +735,14 @@ bool currentTokenWordEQ(Compiler *compiler, char *name) {
     return STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, name);
 }
 
+//********************************************************************************************************************//
+//* Helper Function getEntry                                                                                         *//
+//*     Input:                                                                                                       *//
+//*         compiler: Compiler * -- main compiler object                                                             *//
+//*         name: char * -- string to get                                                                            *//
+//*     Returns:                                                                                                     *//
+//*         SymbolEntry * -- entry in tables corresponding to given name                                             *//
+//********************************************************************************************************************//
 SymbolEntry *getEntry(Compiler *compiler, char *name) {
     for (int i = 0; i < compiler->classTable->used; i++)
         if (STREQUALS(name, compiler->classTable->list[i]->name))

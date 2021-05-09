@@ -14,20 +14,31 @@
 			<symbol> { </symbol>
 			<varDec>
 				<keyword> var </keyword>
-				<identifier> SquareGame </identifier>
+				<identifier> PongGame </identifier>
 				<identifier> game </identifier>
 				<symbol> ; </symbol>
 			</varDec>
 			<statements>
+				<doStatement>
+					<keyword> do </keyword>
+					<identifier> PongGame </identifier>
+					<symbol> . </symbol>
+					<identifier> newInstance </identifier>
+					<symbol> ( </symbol>
+					<expressionList>
+					</expressionList>
+					<symbol> ) </symbol>
+					<symbol> ; </symbol>
+				</doStatement>
 				<letStatement>
 					<keyword> let </keyword>
 					<identifier> game </identifier>
 					<symbol> = </symbol>
 					<expression>
 						<term>
-							<identifier> SquareGame </identifier>
+							<identifier> PongGame </identifier>
 							<symbol> . </symbol>
-							<identifier> new </identifier>
+							<identifier> getInstance </identifier>
 							<symbol> ( </symbol>
 							<expressionList>
 							</expressionList>
