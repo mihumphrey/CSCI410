@@ -28,7 +28,7 @@ TokenList *getTokens(char *input) {
         if (inOther && input[i] == ' ' && !inStringConst) {
             inOther = false;
 
-        } else if (isSymbol(input[i])) {
+        } else if (isSymbol(input[i]) && !inStringConst) {
             char *symbol = getSymbol(input[i]);
             symbolToken = malloc(sizeof(Token));
             symbolToken->name = symbol;
@@ -95,16 +95,16 @@ TokenList *getTokens(char *input) {
             freeList_char(otherString);
         }
 
-        if (insertSymbol) {
-            if (verbose)
-                fprintf(stderr, "\t\t\t* Inserting Token -- NAME: %s\t     TYPE: %s\n", symbolToken->name, getTokenType(symbolToken->type)); 
-            insertList_Token(tokens, symbolToken);
-        }
         if (insertString) {
             if (verbose)
                 fprintf(stderr, "\t\t\t* Inserting Token -- NAME: %s\t     TYPE: %s\n", stringToken->name, getTokenType(stringToken->type)); 
             insertList_Token(tokens, stringToken);
             freeList_char(stringConst);
+        }
+        if (insertSymbol) {
+            if (verbose)
+                fprintf(stderr, "\t\t\t* Inserting Token -- NAME: %s\t     TYPE: %s\n", symbolToken->name, getTokenType(symbolToken->type)); 
+            insertList_Token(tokens, symbolToken);
         }
     }     
     if (verbose)

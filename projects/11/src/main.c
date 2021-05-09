@@ -28,10 +28,10 @@ int main(int argc, char *argv[]) {
     compiler->labelNum = 0;
 
     compiler->classTable = malloc(sizeof(SymbolTable));
-    compiler->subroutineTable = malloc(sizeof(SymbolTable));
+    //compiler->subroutineTable = malloc(sizeof(SymbolTable));
 
     initList_symbolTable(compiler->classTable, 2);
-    initList_symbolTable(compiler->subroutineTable, 2);
+    //initList_symbolTable(compiler->subroutineTable, 2);
 
 
     struct stat path_stat;
@@ -83,15 +83,15 @@ int main(int argc, char *argv[]) {
 
                 fclose(inputFile);
                 fclose(compiler->outputFile);
-//                freeList_Token(compiler->tokens);
+                freeList_Token(compiler->tokens);
                 free(out);
             }        
         }
         closedir(dir);
     }
     free(filenameCPY);
-//    freeList_symbolTable(compiler->classTable);
-//    freeList_symbolTable(compiler->subroutineTable);
+    freeList_symbolTable(compiler->classTable);
+    //freeList_symbolTable(compiler->subroutineTable);
     free(compiler);
     return 0;
 }

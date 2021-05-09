@@ -1,5 +1,5 @@
 #ifndef ANALYZER_H
-#define ANALYZER_h
+#define ANALYZER_H
 
 #include "grammar.h"
 #include "parser.h"

@@ -36,7 +36,6 @@ void insertList_symbolTable(SymbolTable *tokens, SymbolEntry *element) {
 void freeList_symbolTable(SymbolTable *tokens) {
     for (int i = 0; i < tokens->used; i++) {
         if (strlen(tokens->list[i]->name) > 0)
-        free(tokens->list[i]->name);
         free(tokens->list[i]);
     }
     free(tokens->list);
@@ -45,13 +44,13 @@ void freeList_symbolTable(SymbolTable *tokens) {
 //    free(tokens);
 }
 
-SymbolEntry *getSymbolEntry(SymbolTable *tokens, char *name) {
+/*SymbolEntry *getSymbolEntry(SymbolTable *tokens, char *name) {
     for (int i = 0; i < tokens->used; i++) {
-        if (STREQUALS(tokens->list[i]->name, name)) 
+        if (STREQUALS(name, tokens->list[i]->name)) 
             return tokens->list[i];
     }
     return NULL;
-}
+}*/
 
 bool contains(SymbolTable *tokens, char *name) {
     for (int i = 0; i < tokens->used; i++) {
@@ -80,9 +79,9 @@ int getNextOffset(SymbolTable *tokens, Segment segment) {
 
 void printTable(SymbolTable *table) {
     for (int i = 0; i < table->used; i++) {
-        printf("\t\tNAME: %s\n", table->list[i]->name);
-        printf("\t\tTYPE: %s\n", table->list[i]->type);
-        printf("\t\tSEGMENT: %d\n", table->list[i]->segment);
+        printf("\t\tNAME: %s", table->list[i]->name);
+        printf("\t\tTYPE: %s", table->list[i]->type);
+        printf("\t\tSEGMENT: %s", getSymbolSegment(table->list[i]->segment));
         printf("\t\tOFFSET: %d\n", table->list[i]->offset);
     }
 }
@@ -94,7 +93,7 @@ char *getSymbolSegment(Segment segment) {
     case THIS :
         return "this";
     case ARG :
-        return "arg";
+        return "argument";
     case LOCAL : 
         return "local";
     case THAT : 

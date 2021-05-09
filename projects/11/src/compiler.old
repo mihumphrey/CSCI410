@@ -6,7 +6,8 @@ extern bool verbose;
 //********************************************************************************************************************//
 //* Function compileClass                                                                                            *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                     *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                     *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
 //*     Converts entire class into xml format                                                                        *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -15,8 +16,8 @@ void compileClass(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t* Beginning Compiling\n");
     ASSERT(currentTokenWordEQ(compiler, "class"), "\"class\" expected as first token")
-    compiler->classTable = malloc(sizeof(SymbolTable));
-    initList_symbolTable(compiler->classTable, 2); 
+    clear(compiler->classTable);
+    //writeTag("<class>", outputFile, indentLevel);
     
     
     advance(compiler);
@@ -27,12 +28,15 @@ void compileClass(Compiler *compiler) {
     while (isClassVarOpening(compiler->tokens->list[compiler->tokens->iter]->name)) {
         compileClassVarDec(compiler);
     }
+    printf("CLASS TABLE\n");
+    printTable(compiler->classTable);
     while (isSubroutineOpening(compiler->tokens->list[compiler->tokens->iter]->name)) {
         compileSubroutineDec(compiler);
     }    
     ASSERT(currentSymbolEQ(compiler, '}'), "'}' expected after to close class dec")
+    //writeToken(compiler->tokens, outputFile, indentLevel + 1);
     advance(compiler);
-    freeList_symbolTable(compiler->classTable);
+    //writeTag("</class>", outputFile, indentLevel);
     if (verbose)
         fprintf(stderr, "\t\t* Done Compiling\n");
 }
@@ -40,7 +44,9 @@ void compileClass(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileClassVarDec                                                                                      *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                     *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                     *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts field/static var decs into xml format                                                               *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -48,6 +54,8 @@ void compileClass(Compiler *compiler) {
 void compileClassVarDec(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Class Var Declaration\n");
+    //writeTag("<classVarDec>", outputFile, indent);
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     ASSERT(currentTokenWordEQ(compiler, "static") || currentTokenWordEQ(compiler, "field"), "expected static or field keyword") 
     Segment segment;
     if (currentTokenWordEQ(compiler, "static"))
@@ -71,7 +79,9 @@ void compileClassVarDec(Compiler *compiler) {
     }
  
     ASSERT(currentSymbolEQ(compiler, ';'), "';' expected after class var declaration")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
+    //writeTag("</classVarDec>", outputFile, indent);
     
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Class Var Declaration\n");
@@ -80,18 +90,18 @@ void compileClassVarDec(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileSubroutineDec                                                                                    *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts functions/constructors into xml format                                                              *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
 //********************************************************************************************************************//
 void compileSubroutineDec(Compiler *compiler) {
-    compiler->subroutineTable = malloc(sizeof(SymbolTable));
-    initList_symbolTable(compiler->subroutineTable, 2); 
-    SymbolEntry *entry = malloc(sizeof(SymbolEntry));
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Subroutine Declaration\n");
-    //clear(compiler->subroutineTable);
+    //writeTag("<subroutineDec>", outputFile, indent);
+    clear(compiler->subroutineTable);
     ASSERT(currentTokenWordEQ(compiler, "method") || currentTokenWordEQ(compiler, "constructor") || currentTokenWordEQ(compiler, "function"), "expected method or constructor keyword at beginning of subroutine")
 
     if (currentTokenWordEQ(compiler, "constructor")) {
@@ -101,10 +111,6 @@ void compileSubroutineDec(Compiler *compiler) {
     else if (currentTokenWordEQ(compiler, "method")) {
         compiler->classTable->isMethod = true;
         compiler->classTable->isConstructor = false;
-        entry->name = "instance";
-        entry->type = compiler->className;
-        entry->segment = ARG;
-        insertList_symbolTable(compiler->subroutineTable, entry);
     } else {
         compiler->classTable->isMethod = false;
         compiler->classTable->isConstructor = false;
@@ -119,9 +125,11 @@ void compileSubroutineDec(Compiler *compiler) {
     advance(compiler);
     compileParameterList(compiler);
     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected at end of parameter list")
+    //writeToken(compiler->tokens, outputFile, indent + 1); 
     advance(compiler);
     compileSubroutineBody(compiler);
-    freeList_symbolTable(compiler->subroutineTable);
+    //writeTag("</subroutineDec>", outputFile, indent);
+
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Subroutine Declaration\n");
 }
@@ -129,7 +137,9 @@ void compileSubroutineDec(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileSubroutineBody                                                                                   *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts body of subroutine into xml format                                                                  *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -137,8 +147,11 @@ void compileSubroutineDec(Compiler *compiler) {
 void compileSubroutineBody(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Subroutine Body\n");
+    //writeTag("<subroutineBody>", outputFile, indent);
     ASSERT(currentSymbolEQ(compiler, '{'), "'{' expected after parameter list")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
+    
     while (currentTokenWordEQ(compiler, "var")) {
         compileVarDec(compiler);
         advance(compiler);
@@ -156,7 +169,9 @@ void compileSubroutineBody(Compiler *compiler) {
     
     compileStatements(compiler);
     ASSERT(currentSymbolEQ(compiler, '}'), "'}' expected to close subroutine")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
+    //writeTag("</subroutineBody>", outputFile, indent);
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Subroutine Body\n");
@@ -165,7 +180,9 @@ void compileSubroutineBody(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileParameterList                                                                                    *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts parameter list (int x, int y, etc) into xml format                                                  *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -173,12 +190,17 @@ void compileSubroutineBody(Compiler *compiler) {
 void compileParameterList(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Parameter List\n");
+    //writeTag("<parameterList>", outputFile, indent);
     while (currentSymbol(compiler) != ')') {
         SymbolEntry *entry = malloc(sizeof(SymbolEntry));
+        //writeToken(compiler->tokens, outputFile, indent + 1);
+//        printf("TYPE: %s\n", currentTokenWord(compiler));
         entry->type = currentTokenWord(compiler);
         advance(compiler); 
+//        printf("NAME: %s\n", currentTokenWord(compiler));
         entry->name = currentTokenWord(compiler);
         advance(compiler);
+//        printf("COMMA OR CLOSE: %s\n", currentTokenWord(compiler));
         if (currentSymbolEQ(compiler, ','))
             advance(compiler);
         entry->segment = ARG;
@@ -186,6 +208,7 @@ void compileParameterList(Compiler *compiler) {
             fprintf(stderr, "\t\t\t\t* Inserting symbol into subroutine table: SEGMENT: %d\tTYPE: %s\tNAME: %s\n", entry->segment, entry->type, entry->name);
         insertList_symbolTable(compiler->subroutineTable, entry);
     }
+    //writeTag("</parameterList>", outputFile, indent);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Parameter List\n");
 }
@@ -193,7 +216,9 @@ void compileParameterList(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileVarDec                                                                                           *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts var decs into xml format                                                                            *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -201,6 +226,7 @@ void compileParameterList(Compiler *compiler) {
 void compileVarDec(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Var Declaration\n");
+    //writeTag("<varDec>", outputFile, indent);
     ASSERT(currentTokenWordEQ(compiler, "var"), "expected 'var' keyword to declare var")
     advance(compiler);
     char *type = currentTokenWord(compiler);
@@ -218,10 +244,13 @@ void compileVarDec(Compiler *compiler) {
         if (verbose)
             fprintf(stderr, "\t\t\t\t* Inserting symbol into subroutine table: SEGMENT: %d\tTYPE: %s\tNAME: %s\n", entry->segment, entry->type, entry->name);
 
+        //writeToken(compiler->tokens, outputFile, indent + 1);
     }
 
     ASSERT(currentSymbolEQ(compiler, ';'), "';' expected after class var declaration")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
 
+    //writeTag("</varDec>", outputFile, indent);
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Var Declaration\n");
@@ -230,7 +259,9 @@ void compileVarDec(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileStatements                                                                                       *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts all statements into xml format                                                                      *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -238,6 +269,7 @@ void compileVarDec(Compiler *compiler) {
 void compileStatements(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Statements\n");
+    //writeTag("<statements>", outputFile, indent);
     while (isStatementOpening(currentTokenWord(compiler))) {
         if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "do"))
             compileDo(compiler);
@@ -250,6 +282,7 @@ void compileStatements(Compiler *compiler) {
         else if (STREQUALS(compiler->tokens->list[compiler->tokens->iter]->name, "while"))
             compileWhile(compiler);
     }
+    //writeTag("</statements>", outputFile, indent);
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Statements\n");
@@ -258,7 +291,9 @@ void compileStatements(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileDo                                                                                               *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts do statement into xml format                                                                        *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -266,12 +301,36 @@ void compileStatements(Compiler *compiler) {
 void compileDo(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Do Statement\n");
+    //writeTag("<doStatement>", outputFile, indent);
     ASSERT(currentTokenWordEQ(compiler, "do"), "'do' keyword expected")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
    
     compileSubroutineCall(compiler);
     WRITE("pop temp 0\n"); 
     advance(compiler);
+/*
+    while (currentSymbol(compiler) != '(') {
+        //writeToken(compiler->tokens, outputFile, indent + 1);
+        advance(compiler);
+    }
+
+    ASSERT(currentSymbolEQ(compiler, '('), "'(' expected at beginning of expression list")
+    //writeToken(compiler->tokens, outputFile, indent + 1); 
+    advance(compiler);
+
+    compileExpressionList(compiler);
+
+    ASSERT(currentSymbolEQ(compiler, ')'), "')' expected at end of expression list")
+    //writeToken(compiler->tokens, outputFile, indent + 1); 
+    advance(compiler);
+
+    ASSERT(currentSymbolEQ(compiler, ';'), "';' expected at end of statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1); 
+    advance(compiler);
+*/
+    //writeTag("</doStatement>", outputFile, indent);
+
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Do Statement\n");
 }
@@ -279,7 +338,9 @@ void compileDo(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileLet                                                                                              *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts let statement into xml format                                                                       *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -289,14 +350,17 @@ void compileLet(Compiler *compiler) {
         fprintf(stderr, "\t\t\t* Compiling Let Statement\n");
     
     bool isArr = false;
+    //writeTag("<letStatement>", outputFile, indent);
     ASSERT(currentTokenWordEQ(compiler, "let"), "'let' keyword expected")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
     char *name = currentTokenWord(compiler);
     char *segment = NULL;
     int offset = 0;
-    
     SymbolEntry *entry = getEntry(compiler, name);
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
     if (compiler->tokens->list[compiler->tokens->iter - 1]->name[0] == '[') {
         isArr = true;
@@ -308,8 +372,10 @@ void compileLet(Compiler *compiler) {
             segment = "that";
             offset = 0;
         } else ASSERT(0 == 1, "symbol not defined")
+        //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
         ASSERT(currentSymbolEQ(compiler, '='), "'=' expected after end of expression")
+        //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
     } else {
         segment = getSymbolSegment(entry->segment);
@@ -324,7 +390,9 @@ void compileLet(Compiler *compiler) {
     }
     WRITE("pop %s %d\n", segment, offset) 
     ASSERT(currentSymbolEQ(compiler, ';'), "';' expected after let statement 1")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
+    //writeTag("</letStatement>", outputFile, indent);
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Let Statement\n");
@@ -333,7 +401,9 @@ void compileLet(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileWhile                                                                                            *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts while statement into xml format                                                                     *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -356,11 +426,14 @@ void compileWhile(Compiler *compiler) {
     strcat(&falseLabel[1], labelNumchar);
     falseLabel[len] = '\0'; 
         
+    //writeTag("<whileStatement>", outputFile, indent);
     ASSERT(currentTokenWordEQ(compiler, "while"), "'while' keyword expected")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     WRITE("label %s\n", trueLabel)
     ASSERT(currentSymbolEQ(compiler, '('), "'(' expected in while statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     compileExpression(compiler);
@@ -368,17 +441,21 @@ void compileWhile(Compiler *compiler) {
     WRITE("not\n")
     WRITE("if-goto %s\n", falseLabel)
     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected in while statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     ASSERT(currentSymbolEQ(compiler, '{'), "'{' expected in while statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     compileStatements(compiler);
     WRITE("goto %s\n", trueLabel)
     WRITE("label %s\n", falseLabel)
     ASSERT(currentSymbolEQ(compiler, '}'), "'}' expected in while statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
+    //writeTag("</whileStatement>", outputFile, indent);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling While Statement\n");
 }
@@ -386,7 +463,9 @@ void compileWhile(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileReturn                                                                                           *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts return statement into xml format                                                                    *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -394,7 +473,9 @@ void compileWhile(Compiler *compiler) {
 void compileReturn(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Return Statement\n");
+    //writeTag("<returnStatement>", outputFile, indent);
     ASSERT(currentTokenWordEQ(compiler, "return"), "'return' keyword expected")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     if (currentSymbol(compiler) != ';') {
@@ -404,8 +485,10 @@ void compileReturn(Compiler *compiler) {
     }
     WRITE("return\n")
     ASSERT(currentSymbolEQ(compiler, ';'), "';' expected after let statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
+    //writeTag("</returnStatement>", outputFile, indent);
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Return Statement\n");
@@ -414,7 +497,9 @@ void compileReturn(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileIf                                                                                               *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts if statement into xml format                                                                        *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -428,16 +513,21 @@ void compileIf(Compiler *compiler) {
     sprintf(falseLabel, "IF-FALSE%d", compiler->labelNum++);
     sprintf(endLabel, "IF-END%d", compiler->labelNum++);
 
+printf("LABELS: TRUE: %s\tFALSE: %s\tEND: %s\n", trueLabel, falseLabel, endLabel);
 
+    //writeTag("<ifStatement>", outputFile, indent);
     ASSERT(currentTokenWordEQ(compiler, "if"), "'if' keyword expected")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     ASSERT(currentSymbolEQ(compiler, '('), "'(' expected in if statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     compileExpression(compiler);
 
     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected in if statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     WRITE("if-goto %s\n", trueLabel)
@@ -445,28 +535,34 @@ void compileIf(Compiler *compiler) {
     WRITE("label %s\n", trueLabel)
 
     ASSERT(currentSymbolEQ(compiler, '{'), "'{' expected in if statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     compileStatements(compiler);
     WRITE("goto %s\n", endLabel);
 
     ASSERT(currentSymbolEQ(compiler, '}'), "'}' expected in if statement")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
 
     WRITE("label %s\n", falseLabel)
     if (currentTokenWordEQ(compiler, "else")) {
         ASSERT(currentTokenWordEQ(compiler, "else"), "'else' keyword expected")
+        //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
 
         ASSERT(currentSymbolEQ(compiler, '{'), "'{' expected in if statement")
+        //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
 
         compileStatements(compiler);
 
         ASSERT(currentSymbolEQ(compiler, '}'), "'}' expected in if statement")
+        //writeToken(compiler->tokens, outputFile, indent + 1);
         advance(compiler);
     }
     WRITE("label %s\n", endLabel)
+    //writeTag("</ifStatement>", outputFile, indent);
 
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling If Statement\n");
@@ -475,7 +571,9 @@ void compileIf(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileExpression                                                                                       *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts nested expression into xml format                                                                   *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -483,14 +581,18 @@ void compileIf(Compiler *compiler) {
 void compileExpression(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Expression\n");
+    //writeTag("<expression>", outputFile, indent);
     compileTerm(compiler);
     while (isOperator(currentTokenWord(compiler))) {
+        //writeToken(compiler->tokens, outputFile, indent + 1);
+        printf("OP: %s\n", currentTokenWord(compiler));
         const char *operator = getArithCommand(currentTokenWord(compiler));
             
         advance(compiler);
         compileTerm(compiler);
         WRITE("%s\n", operator)
     }
+    //writeTag("</expression>", outputFile, indent);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Expression\n");
 }
@@ -498,7 +600,9 @@ void compileExpression(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileTerm                                                                                             *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts terminal into xml format                                                                            *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -506,8 +610,13 @@ void compileExpression(Compiler *compiler) {
 void compileTerm(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Terminal\n");
+    //writeTag("<term>", outputFile, indent);
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     char *name, *subName;
     SymbolEntry *entry;
+    printf("TOKENB: %s\n", compiler->tokens->list[compiler->tokens->iter - 1]->name);
+    printf("TOKEN: %s\n", compiler->tokens->list[compiler->tokens->iter]->name);
+    printf("TOKENA: %s\n", compiler->tokens->list[compiler->tokens->iter + 1]->name);
     switch(compiler->tokens->list[compiler->tokens->iter ]->type) {
         case IDENTIFIER : 
             name = currentTokenWord(compiler);
@@ -515,9 +624,12 @@ void compileTerm(Compiler *compiler) {
             ASSERT(compiler->tokens->list[compiler->tokens->iter]->type == SYMBOL, "expected symbol")         
             switch (currentSymbol(compiler)) {
                 case '.' :
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     advance(compiler);
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     subName = currentTokenWord(compiler);
                     advance(compiler);
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     ASSERT(currentSymbolEQ(compiler, '('), "expected '(' to start expression list")
                     entry = getEntry(compiler, name);
                     if (entry != NULL) {
@@ -531,18 +643,22 @@ void compileTerm(Compiler *compiler) {
                     if (entry != NULL) {
                         WRITE("call %s.%s %d\n", entry->type, subName, compiler->numExpressions + 1)
                     } else WRITE("call %s.%s %d\n", name, subName, compiler->numExpressions)
+                    //compileSubroutineCall(compiler);
                     advance(compiler); 
                     break;
                 case '(' :
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     advance(compiler);
                     WRITE("push pointer 0\n")
                     compileExpressionList(compiler);
                     compiler->numExpressions++;
                     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected after expression list")
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     WRITE("call %s.%s %d\n", compiler->className, name, compiler->numExpressions)
                     advance(compiler);
                     break;
                 case '[' :
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     entry = getEntry(compiler, name);
                     advance(compiler);
                     compileExpression(compiler);
@@ -553,6 +669,7 @@ void compileTerm(Compiler *compiler) {
                     WRITE("add\n")
                     WRITE("pop pointer 1\n")
                     WRITE("push that 0\n")
+                    //writeToken(compiler->tokens, outputFile, indent + 1);
                     advance(compiler);
                     break;
                 default :
@@ -567,6 +684,7 @@ void compileTerm(Compiler *compiler) {
                 advance(compiler);
                 compileExpression(compiler);
                 ASSERT(currentSymbolEQ(compiler, ')'), "')' expected after expression list")
+                //writeToken(compiler->tokens, outputFile, indent + 1);
                 advance(compiler);
             } else if (isUnaryOp(currentSymbol(compiler))) { 
                 char op = currentSymbol(compiler);
@@ -605,6 +723,7 @@ void compileTerm(Compiler *compiler) {
         default :
             ASSERT(0 == 1, "Invalid terminal received")        
     }
+    //writeTag("</term>", outputFile, indent);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Terminal\n");
 }
@@ -612,7 +731,9 @@ void compileTerm(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compilesubroutineCall                                                                                   *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts subrioutineCall into xml format                                                                     *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -620,22 +741,27 @@ void compileTerm(Compiler *compiler) {
 void compileSubroutineCall(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Subroutine Call\n");
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     char *first = currentTokenWord(compiler);
     char *second = NULL;
     SymbolEntry *entry = getEntry(compiler, first);
     advance(compiler);
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     if (currentSymbolEQ(compiler, '.')) {
         advance(compiler);
+        //writeToken(compiler->tokens, outputFile, indent + 1);
         second = currentTokenWord(compiler);
         if (entry != NULL)
             WRITE("push %s %d\n", getSymbolSegment(entry->segment), entry->offset)
         advance(compiler);
         ASSERT(currentSymbolEQ(compiler, '('), "'(' expected after expression list")
+        //writeToken(compiler->tokens, outputFile, indent + 1);
     } else WRITE("push pointer 0\n")
     advance(compiler);
 
     compileExpressionList(compiler);
     ASSERT(currentSymbolEQ(compiler, ')'), "')' expected after expression list")
+    //writeToken(compiler->tokens, outputFile, indent + 1);
     advance(compiler);
     char call[256];
     if (second != NULL)
@@ -656,7 +782,9 @@ void compileSubroutineCall(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Function compileExpressionList                                                                                   *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         outputFile: FILE * -- file to write to                                                                   *//
+//*         indent: int -- amount to indent xml to                                                                   *//
 //*     Converts expression list (x, y) into xml format                                                              *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -664,14 +792,17 @@ void compileSubroutineCall(Compiler *compiler) {
 void compileExpressionList(Compiler *compiler) {
     if (verbose)
         fprintf(stderr, "\t\t\t* Compiling Expression List\n");
+    //writeTag("<expressionList>", outputFile, indent);
     compiler->numExpressions = 0;
     while (currentSymbol(compiler) != ')') {
         compiler->numExpressions++;
         compileExpression(compiler);
         if (currentSymbolEQ(compiler, ',')) {
+            //writeToken(compiler->tokens, outputFile, indent + 1);
             advance(compiler);
         }
     }
+    //writeTag("</expressionList>", outputFile, indent);
     if (verbose)
         fprintf(stderr, "\t\t\t* Done Compiling Expression List\n");
 }
@@ -679,7 +810,7 @@ void compileExpressionList(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function advance                                                                                          *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
 //*     increments compiler->tokens iterator by one                                                                            *//
 //*     Returns:                                                                                                     *//
 //*         void                                                                                                     *//
@@ -691,7 +822,7 @@ void advance(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function currentsymbol                                                                                    *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
 //*     Returns:                                                                                                     *//
 //*         char -- current symbol in char format                                                                    *//
 //********************************************************************************************************************//
@@ -702,7 +833,8 @@ char currentSymbol(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function currentSymbolEQ                                                                                  *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         symbolName: char -- char to compare                                                                      *//
 //*     Returns:                                                                                                     *//
 //*         bool -- whether or not current symbol is equal to parameter                                              *//
 //********************************************************************************************************************//
@@ -714,7 +846,7 @@ bool currentSymbolEQ(Compiler *compiler, char symbolName) {
 //********************************************************************************************************************//
 //* Helper Function currenTokenWord                                                                                  *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
 //*     Returns:                                                                                                     *//
 //*         char * -- current token full name                                                                        *//
 //********************************************************************************************************************//
@@ -725,7 +857,8 @@ char *currentTokenWord(Compiler *compiler) {
 //********************************************************************************************************************//
 //* Helper Function currentTokenWordEQ                                                                               *//
 //*     Input:                                                                                                       *//
-//*         compiler: Compiler * -- main compiler object                                                                    *//
+//*         compiler->tokens: TokenList * -- List of compiler->tokens                                                                    *//
+//*         name: char * -- name to compare                                                                          *//
 //*     Returns:                                                                                                     *//
 //*         bool -- whether or not current token is equal to parameter                                               *//
 //********************************************************************************************************************//
@@ -735,7 +868,7 @@ bool currentTokenWordEQ(Compiler *compiler, char *name) {
 
 SymbolEntry *getEntry(Compiler *compiler, char *name) {
     for (int i = 0; i < compiler->classTable->used; i++)
-        if (STREQUALS(name, compiler->classTable->list[i]->name))
+        if (STREQUALS(compiler->classTable->list[i]->name, name))
             return compiler->classTable->list[i];
 
     for (int i = 0; i < compiler->subroutineTable->used; i++)
