@@ -74,9 +74,6 @@ int main(int argc, char *argv[]) {
 
                 translator->currClass = dp->d_name;
 
-                if (verbose)
-                    fprintf(stdout, "\n\nFILENAME: %s\n", fullPath);
-                
                 FILE *inputFile = fopen(fullPath, "r");
                 translator->inputFile = inputFile;
                 ASSERT(inputFile, "not open")

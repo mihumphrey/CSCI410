@@ -32,7 +32,7 @@ assembler: $(ASSEMSRCFILES) $(ASSEMHFILES)
 
 zip:
 	make clean >/dev/null
-	zip -r michaelhumphrey.zip src bin compiler analyzer translator assembler 
+	zip -r compiler.zip src bin compiler analyzer translator assembler OS
  
 
 clean:
